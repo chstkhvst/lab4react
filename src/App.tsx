@@ -1,26 +1,15 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// Импортируем компонент REObjectList из файла REObjectList.tsx, который находится в папке components
+import REObjectList from './components/REObjectList';
 
-function App() {
+// Создаем функциональный компонент App
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {/* Рендерим компонент REObjectList, который отвечает за отображение списка объектов недвижимости */}
+      <REObjectList />
+    </>
   );
-}
+};
 
+// Экспортируем компонент App по умолчанию, чтобы его можно было использовать в других частях приложения
 export default App;
