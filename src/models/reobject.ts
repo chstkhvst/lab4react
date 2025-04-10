@@ -21,8 +21,11 @@ export interface REObject {
     building: number;
     roomnum?: number;
     price: number;
-    dealType: DealType;
+    dealtypeid: number;
+    typeid: number;
+    statusid: number;
+    /* dealType: DealType;
     objectType: ObjectType;
-    status: Status;
+    status: Status; */
   }
   

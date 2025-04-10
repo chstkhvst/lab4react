@@ -1,107 +1,53 @@
-// Импортируем необходимые хуки из React
-import { useState, useEffect } from "react";
+import React, { useContext } from "react"
+import { REObjectContext } from "../context/REObjectContext"
+import { Link, useNavigate } from "react-router-dom"
 
-interface DealType {
-    id: number;
-    dealName: string;
-}
 
-interface ObjectType {
-    id: number;
-    typeName: string;
-}
+// Компонент для отображения списка объектов
+const REObjectList: React.FC = () => {
+  const context = useContext(REObjectContext) // Получаем доступ к глобальному состоянию из контекста
+  const navigate = useNavigate() // Хук для программной навигации между страницами
 
-interface Status {
-    id: number;
-    statusName: string;
-}
 
-// Объект недвижимости
-interface REObject {
-    id: number;
-    rooms: number;
-    floors: number;
-    square: number;
-    street: string;
-    building: number;
-    roomnum?: number;
-    price: number;
-    dealType: DealType;
-    objectType: ObjectType;
-    status: Status;
-}
+  if (!context) return <div>No context available!</div>
 
-// Функциональный компонент списка объектов недвижимости
-const REObjectList = () => {
-    // Хранение списка объектов недвижимости
-    const [reobjects, setReObjects] = useState<REObject[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
 
-    // Запрос данных с сервера при загрузке компонента
-    useEffect(() => {
-        fetchData();
-    }, []);
+  const { reobjects, deleteREObject } = context
 
-    // Функция загрузки данных
-    const fetchData = () => {
-        fetch('/api/REObject')
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Ошибка HTTP: ${response.status}`);
-                }
-                return response.text(); // Читаем как текст
-            })
-            .then((text) => {
-                if (!text) {
-                    throw new Error("Пустой ответ от сервера");
-                }
-                return JSON.parse(text); // Преобразуем в JSON
-            })
-            .then((data: REObject[]) => {
-                console.log("Данные получены:", data);
-                setReObjects(data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error("Ошибка при загрузке данных:", error);
-                setError(error.message);
-                setLoading(false);
-            });
-    };
-    
-
-    // Отображение загрузки
-    if (loading) {
-        return <div>Загрузка...</div>;
+  const handleDelete = (id: number) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this project?")
+    if (isConfirmed) {
+      deleteREObject(id) // Удаляем проект, если пользователь подтвердил действие
     }
+  }
 
-    // Отображение ошибки
-    if (error) {
-        return <div>Ошибка: {error}</div>;
-    }
+  return (
+    <div>
+      <h2>REObjects</h2>
+      {/* Кнопка для добавления нового объекта */}  
+      <button onClick={() => navigate("reobjects/add")}>Add New Object</button>
 
-    // Отображение списка объектов недвижимости
-    return (
-        <div>
-            <h1>Список объектов недвижимости</h1>
-            <ul>
-                {reobjects.map((reobject) => (
-                    <li key={reobject.id}>
-                        <h2>{`${reobject.street}, д. ${reobject.building}${reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""}`}</h2>
-                        <p>
-                            Тип: {reobject.objectType.typeName} | Сделка: {reobject.dealType.dealName} | Статус: {reobject.status.statusName}
-                        </p>
-                        <p>
-                            Площадь: {reobject.square} м² | Этажей: {reobject.floors} | Комнат: {reobject.rooms}
-                        </p>
-                        <p>Цена: {reobject.price} руб.</p>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-};
 
-// Экспортируем компонент
-export default REObjectList;
+      {/* Отображение списка объекта */}
+      {reobjects.map((reobject) => (
+          <p key={reobject.id}>
+            <h2>
+              {`${reobject.street}, д. ${reobject.building}${
+                reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""
+              }`}
+            </h2>
+            <p>
+              Площадь: {reobject.square} м² | Этажей: {reobject.floors} | Комнат:{" "}
+              {reobject.rooms}
+            </p>
+            <p>Цена: {reobject.price} руб.</p>
+            <Link to={`/reobjects/${reobject.id}`}>Подробнее</Link>
+            <button onClick={() => handleDelete(reobject.id)}>Delete</button> {/* Удаление  */}
+          </p>
+        ))}
+    </div>
+  )
+}
+
+
+export default REObjectList
