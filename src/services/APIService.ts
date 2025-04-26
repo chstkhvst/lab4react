@@ -1,5 +1,4 @@
-import { REObject, DealType, ObjectType, Status } from "../models/reobject"
-
+import { REObject, DealType, ObjectType, Status, ResStatus } from "../models/reobject"
 // Класс для работы с API
 class APIService {
   private baseUrl: string
@@ -34,9 +33,9 @@ class APIService {
     if (!response.ok) throw new Error("Failed to delete")
   }
 
-    // Обновление существующего проекта
+    // Обновление существующего объекта
     async updateREObject(id: number, reobject: Omit<REObject, "id">): Promise<REObject> {
-      // Включаем id обратно в объект project
+      // Включаем id обратно в объект 
       const reobjectWithId = { ...reobject, id };
     
       const response = await fetch(`${this.baseUrl}/REObject/${id}`, {
@@ -53,6 +52,31 @@ class APIService {
       if (!response.ok) throw new Error("Failed to fetch");
       return await response.json();
     }
+
+async getDealTypes(): Promise<DealType[]> {
+  const response = await fetch(`${this.baseUrl}/catalog/dealtypes`)
+  if (!response.ok) throw new Error("Failed to fetch deal types")
+  return await response.json()
+}
+
+async getObjectTypes(): Promise<ObjectType[]> {
+  const response = await fetch(`${this.baseUrl}/catalog/objecttypes`)
+  if (!response.ok) throw new Error("Failed to fetch object types")
+  return await response.json()
+}
+
+async getStatuses(): Promise<Status[]> {
+  const response = await fetch(`${this.baseUrl}/catalog/statuses`)
+  if (!response.ok) throw new Error("Failed to fetch statuses")
+  return await response.json()
+}
+
+async getResStatuses(): Promise<ResStatus[]> {
+  const response = await fetch(`${this.baseUrl}/catalog/resstatuses`)
+  if (!response.ok) throw new Error("Failed to fetch res statuses")
+  return await response.json()
+}
+
 }
 
 export default new APIService("/api") // Экспортируем инстанс с базовым URL

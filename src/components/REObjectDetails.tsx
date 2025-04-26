@@ -1,232 +1,3 @@
-// import React, { useEffect, useState, useContext } from "react"
-// import { useParams, useNavigate } from "react-router-dom"
-// import { REObjectContext } from "../context/REObjectContext"
-// import { REObject } from "../models/reobject" 
-// import APIService from "../services/APIService"
-
-// // Компонент для отображения деталей объекта недвижимости
-// const REObjectDetails: React.FC = () => {
-//   const { id } = useParams<{ id: string }>() // Получаем ID объекта из URL
-//   const context = useContext(REObjectContext) // Доступ к контексту объектов
-//   const navigate = useNavigate() // Для навигации
-
-//   const [reobject, setREObject] = useState<REObject | null>(null) // Храним текущий объект
-//   const [editMode, setEditMode] = useState(false) // Режим редактирования
-//   const [formState, setFormState] = useState<REObject | null>(null) // Состояние для редактирования
-//   // Функция загрузки данных объекта с сервера
-//   const fetchREObject = async () => {
-//     if (id) {
-//       try {
-//         const fetchedObject = await APIService.getREObjectById(parseInt(id, 10)) // Запрос к API
-//         setREObject(fetchedObject)
-//         setFormState(fetchedObject)
-//       } catch (error) {
-//         console.error("Failed to fetch object:", error)
-//         alert("Failed to load object details.")
-//       }
-//     }
-//   }
-
-//   useEffect(() => {
-//     if (context) {
-//       // Находим объект по ID (локально)
-//       const foundObject = context.reobjects.find(obj => obj.id === parseInt(id || "", 10))
-//       if (foundObject) {
-//         setREObject(foundObject)
-//         setFormState(foundObject)
-//       } else {
-//         // Если не нашли локально, пробуем загрузить с сервера
-//         fetchREObject()
-//       }
-//     }
-//   }, [context, id])
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault()
-  
-//     if (formState && context) {
-//       try {
-//         // Создаем объект без id для обновления
-//         const updatedData: Omit<REObject, "id"> = {
-//           street: formState.street,
-//           building: formState.building,
-//           roomnum: formState.roomnum,
-//           rooms: formState.rooms,
-//           floors: formState.floors,
-//           square: formState.square,
-//           price: formState.price,
-//           dealtypeid: formState.dealtypeid,
-//           typeid: formState.typeid,
-//           statusid: formState.statusid,
-//         }
-  
-//         // Обновляем объект через API и контекст
-//         const updatedObject = await APIService.updateREObject(formState.id, updatedData)
-        
-//         // Обновляем данные объекта
-//         setREObject(updatedObject)
-//         context.updateREObject(formState.id, updatedData) 
-//         setEditMode(false) // Выходим из режима редактирования
-//       } catch (error) {
-//         console.error("Failed to update object:", error)
-//         alert("Failed to update object.")
-//       }
-//     }
-//   }
-
-//   if (!reobject) {
-//     return <div>Объект не найден!</div> // Сообщение если объект не найден
-//   }
-
-//   return (
-//     <div>
-//       <h2>Детали объекта недвижимости</h2>
-//       {!editMode ? (
-//         <>
-//           {/* Режим просмотра */}
-//           <p>
-//             <strong>Адрес:</strong> {`${reobject.street}, д. ${reobject.building}${reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""}`}
-//           </p>
-//           {/*  <p>
-//             <strong>Тип объекта:</strong> {reobject.objectType.typeName}
-//           </p>
-//           <p>
-//             <strong>Тип сделки:</strong> {reobject.dealType.dealName}
-//           </p>
-//           <p>
-//             <strong>Статус:</strong> {reobject.status.statusName}
-//           </p> */}
-//           <p>
-//             <strong>Площадь:</strong> {reobject.square} м²
-//           </p>
-//           <p>
-//             <strong>Этажей:</strong> {reobject.floors}
-//           </p>
-//           <p>
-//             <strong>Количество комнат:</strong> {reobject.rooms}
-//           </p>
-//           <p>
-//             <strong>Цена:</strong> {reobject.price} руб.
-//           </p>
-          
-//           <button onClick={() => setEditMode(true)}>Редактировать</button>
-//           <button onClick={() => navigate("/")}>Назад к списку</button>
-//         </>
-//       ) : (
-//         <form onSubmit={handleSubmit}>
-//           {/* Режим редактирования */}
-//           <div>
-//             <label>Улица:</label>
-//             <input
-//               type="text"
-//               value={formState?.street || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, street: e.target.value })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>Дом:</label>
-//             <input
-//               type="text"
-//               value={formState?.building || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, building: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>Квартира (если есть):</label>
-//             <input
-//               type="text"
-//               value={formState?.roomnum || ""}
-//               onChange={(e) => setFormState({ 
-//                 ...formState!, 
-//                 roomnum: e.target.value ? Number(e.target.value) : undefined 
-//               })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>Комнат:</label>
-//             <input
-//               type="number"
-//               value={formState?.rooms || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, rooms: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>Этажей:</label>
-//             <input
-//               type="number"
-//               value={formState?.floors || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, floors: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>Площадь:</label>
-//             <input
-//               type="number"
-//               value={formState?.square || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, square: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>Цена:</label>
-//             <input
-//               type="number"
-//               value={formState?.price || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, price: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>ID типа сделки:</label>
-//             <input
-//               type="number"
-//               value={formState?.dealtypeid || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, dealtypeid: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>ID типа объекта:</label>
-//             <input
-//               type="number"
-//               value={formState?.typeid || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, typeid: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <div>
-//             <label>ID статуса:</label>
-//             <input
-//               type="number"
-//               value={formState?.statusid || ""}
-//               required
-//               onChange={(e) => setFormState({ ...formState!, statusid: Number(e.target.value) })}
-//             />
-//           </div>
-          
-//           <button type="submit">Сохранить</button>
-//           <button type="button" onClick={() => setEditMode(false)}>
-//             Отмена
-//           </button>
-//         </form>
-//       )}
-//     </div>
-//   )
-// }
-
 // export default REObjectDetails 
 import React, { useEffect, useState, useContext } from "react"
 import { useParams, useNavigate } from "react-router-dom"
@@ -240,12 +11,12 @@ import {
   TextField,
   Button,
   Stack,
-  Divider,
+  Divider, FormControl, InputLabel, MenuItem, Select
 } from "@mui/material"
 
 const REObjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const context = useContext(REObjectContext)
+  const context = useContext(REObjectContext)!
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
 
@@ -277,7 +48,6 @@ const REObjectDetails: React.FC = () => {
       }
     }
   }, [context, id])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formState && context) {
@@ -290,9 +60,12 @@ const REObjectDetails: React.FC = () => {
           floors: formState.floors,
           square: formState.square,
           price: formState.price,
-          dealtypeid: formState.dealtypeid,
-          typeid: formState.typeid,
-          statusid: formState.statusid,
+          dealtypeid: formState.dealType.id,
+          typeid: formState.objectType.id,
+          statusid: formState.status.id,
+          dealType: formState.dealType,
+          objectType: formState.objectType,
+          status: formState.status,
         }
 
         const updatedObject = await APIService.updateREObject(formState.id, updatedData)
@@ -325,9 +98,19 @@ const REObjectDetails: React.FC = () => {
       {!editMode ? (
         <Box>
           <Typography>
-            <strong>Адрес:</strong>{" "}
-            {`${reobject.street}, д. ${reobject.building}${reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""}`}
-          </Typography>
+          <strong>Адрес:</strong>{" "}
+          {`${reobject.street}, д. ${reobject.building}${reobject.roomnum != null ? `, кв. ${reobject.roomnum}` : ""}`}
+        </Typography>
+
+          {reobject.objectType?.typeName && (
+          <Typography><strong>Тип объекта:</strong> {reobject.objectType.typeName}</Typography>
+          )}
+          {reobject.dealType?.dealName && (
+          <Typography><strong>Тип сделки:</strong> {reobject.dealType.dealName}</Typography>
+          )}
+          {reobject.status?.statusName && (
+              <Typography><strong>Статус:</strong> {reobject.status.statusName}</Typography>
+          )}
           <Typography><strong>Площадь:</strong> {reobject.square} м²</Typography>
           <Typography><strong>Этажей:</strong> {reobject.floors}</Typography>
           <Typography><strong>Количество комнат:</strong> {reobject.rooms}</Typography>
@@ -339,7 +122,7 @@ const REObjectDetails: React.FC = () => {
                 Редактировать
               </Button>
             )}
-            <Button variant="outlined" onClick={() => navigate("/")}>
+            <Button variant="outlined" onClick={() => navigate(isAdmin ? "/objects" : "/objects-for-users")}>
               Назад к списку
             </Button>
           </Stack>
@@ -347,7 +130,7 @@ const REObjectDetails: React.FC = () => {
       ) : (
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={2} divider={<Divider />}>
-            <TextField
+          <TextField
               label="Улица"
               required
               value={formState?.street || ""}
@@ -361,7 +144,7 @@ const REObjectDetails: React.FC = () => {
               onChange={(e) => setFormState({ ...formState!, building: Number(e.target.value) })}
             />
             <TextField
-              label="Квартира (если есть)"
+              label="Квартира"
               type="number"
               value={formState?.roomnum || ""}
               onChange={(e) =>
@@ -399,27 +182,59 @@ const REObjectDetails: React.FC = () => {
               value={formState?.price || ""}
               onChange={(e) => setFormState({ ...formState!, price: Number(e.target.value) })}
             />
-            <TextField
-              label="ID типа сделки"
-              required
-              type="number"
-              value={formState?.dealtypeid || ""}
-              onChange={(e) => setFormState({ ...formState!, dealtypeid: Number(e.target.value) })}
-            />
-            <TextField
-              label="ID типа объекта"
-              required
-              type="number"
-              value={formState?.typeid || ""}
-              onChange={(e) => setFormState({ ...formState!, typeid: Number(e.target.value) })}
-            />
-            <TextField
-              label="ID статуса"
-              required
-              type="number"
-              value={formState?.statusid || ""}
-              onChange={(e) => setFormState({ ...formState!, statusid: Number(e.target.value) })}
-            />
+            <FormControl fullWidth required>
+            <InputLabel>Тип сделки</InputLabel>
+              <Select
+                value={formState?.dealType?.id || ""}
+                label="Тип сделки"
+                onChange={(e) => {
+                  const selected = context.dealTypes.find(dt => dt.id === Number(e.target.value));
+                  if (selected) {
+                    setFormState({ ...formState!, dealtypeid: selected.id, dealType: selected });
+                  }
+                }}
+              >
+              {context.dealTypes.map((dt) => (
+                <MenuItem key={dt.id} value={dt.id}>{dt.dealName}</MenuItem>
+              ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth required>
+            <InputLabel>Тип объекта</InputLabel>
+            <Select
+              value={formState?.objectType?.id || ""}
+              label="Тип объекта"
+              onChange={(e) => {
+                const selected = context.objectTypes.find(ot => ot.id === Number(e.target.value));
+                if (selected) {
+                  setFormState({ ...formState!, typeid: selected.id, objectType: selected });
+                }
+              }}
+            >
+              {context.objectTypes.map((ot) => (
+                <MenuItem key={ot.id} value={ot.id}>{ot.typeName}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth required>
+          <InputLabel>Статус</InputLabel>
+          <Select
+            value={formState?.status?.id || ""}
+            label="Статус"
+            onChange={(e) => {
+              const selected = context.statuses.find(s => s.id === Number(e.target.value));
+              if (selected) {
+                setFormState({ ...formState!, statusid: selected.id, status: selected });
+              }
+            }}
+          >
+            {context.statuses.map((s) => (
+              <MenuItem key={s.id} value={s.id}>{s.statusName}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
             <Stack direction="row" spacing={2}>
               <Button type="submit" variant="contained" color="success">
@@ -433,7 +248,7 @@ const REObjectDetails: React.FC = () => {
         </Box>
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default REObjectDetails
+export default REObjectDetails;

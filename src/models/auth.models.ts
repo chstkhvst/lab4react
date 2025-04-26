@@ -32,3 +32,17 @@ export interface RegisterResponse {
   fullName: string;
   phoneNumber: string;
 }
+
+export interface CurrentUser {
+  userName?: string;
+  fullName?: string;
+  phoneNumber?: string;
+  id?: string;
+}
+export interface User {
+  id: string;
+  userName: string;
+  fullName?: string;
+  phoneNumber?: string;
+  roles: string[];
+}

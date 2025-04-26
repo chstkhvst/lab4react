@@ -1,76 +1,3 @@
-// import React from "react"
-// import { Drawer, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
-// // Импорт компонентов Material UI для создания бокового меню.
-// import { Home, Settings, Info, Mail, Balance } from "@mui/icons-material"
-// // Импорт иконок из Material UI для отображения в меню.
-// import { useLocation } from "react-router-dom"
-
-// interface SideMenuProps {
-//   onMenuItemClick: (path: string) => void
-//   // Пропс отвечает за обработку кликов по элементам меню.
-// }
-
-// const MENU_ITEMS = [
-//   // Массив с настройками пунктов меню: текст, иконка и путь.
-//   { text: "Домашняя", icon: <Home />, path: "/" },
-//   { text: "Все объекты", icon: <Info />, path: "/objects-for-users" },
-//   { text: "Панель администратора", icon: <Settings />, path: "/objects" },
-// ]
-
-// const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
-//   const location = useLocation()
-//   // Хук для получения текущего пути. Используется для подсветки активного элемента меню.
-
-//   return (
-//     <Drawer
-//       variant="permanent"
-//       // Тип `permanent` означает, что меню всегда отображается (не скрывается).
-//       sx={{
-//         width: 240,
-//         // Устанавливаем фиксированную ширину для бокового меню.
-//         flexShrink: 0,
-//         // Предотвращаем сужение бокового меню при изменении размера окна.
-//         "& .MuiDrawer-paper": {
-//           // Настройка внешнего вида панели внутри Drawer.
-//           width: 240,
-//           boxSizing: "border-box",
-//           marginTop: "64px", // Смещение вниз, чтобы меню отображалось под хедером.
-//           height: "calc(100vh - 64px)", // Устанавливаем высоту меню на весь экран минус высота хедера.
-//           borderRight: "none", // Убираем правую границу меню.
-//           backgroundColor: "#f5f5f5", // Легкий фон для панели меню.
-//         },
-//       }}
-//     >
-//       <List>
-
-//         {MENU_ITEMS.map((item) => (
-//           <ListItemButton
-//             key={item.text}
-//             // `key` обязателен для корректного отображения списка React.
-//             onClick={() => onMenuItemClick(item.path)}
-//             // При клике вызываем функцию с соответствующим путём.
-//             sx={{
-//               backgroundColor:
-//                 location.pathname === item.path ? "rgba(65, 12, 222, 0.5)" : "inherit",
-//               // Подсвечиваем активный элемент меню, если текущий путь совпадает с его путём.
-//               "&:hover": {
-//                 backgroundColor: "#b042f5",
-//                 // Меняем цвет фона элемента меню при наведении.
-//               },
-//             }}
-//           >
-//             <ListItemIcon>{item.icon}</ListItemIcon>
-
-//             <ListItemText primary={item.text} />
-
-//           </ListItemButton>
-//         ))}
-//       </List>
-//     </Drawer>
-//   )
-// }
-
-// export default SideMenu
 import React, { useState } from "react";
 import {
   Drawer,
@@ -95,6 +22,8 @@ import {
   ChevronLeft as ChevronLeftIcon,
   AccountCircle,
   Logout,
+  People,
+  Bookmark
 } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -103,20 +32,33 @@ interface SideMenuProps {
   onMenuItemClick: (path: string) => void;
 }
 
-const MENU_ITEMS = [
-  { text: "Главная", icon: <Home />, path: "/" },
-  { text: "Все объекты", icon: <Info />, path: "/objects-for-users" },
-  { text: "Панель администратора", icon: <Settings />, path: "/objects" },
-];
-
 const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
 
   const drawerWidth = open ? 240 : 72;
+
+  // Базовые пункты меню (без изменений)
+  const BASE_MENU_ITEMS = [
+    { text: "Главная", icon: <Info />, path: "/" },
+    { text: "Все объекты", icon: <Home />, path: "/objects-for-users" },
+  ];
+
+  // Пункты меню администратора (добавлен новый пункт)
+  const ADMIN_MENU_ITEMS = [
+    { text: "Редактировать объекты", icon: <Settings />, path: "/objects" },
+    { text: "Все пользователи", icon: <People />, path: "/all-users" },
+    { text: "Бронирования", icon: <Bookmark />, path: "/reservations" } 
+  ];
+
+  // Формируем полный список пунктов меню
+  const menuItems = [
+    ...BASE_MENU_ITEMS,
+    ...(isAdmin ? ADMIN_MENU_ITEMS : [])
+  ];
 
   return (
     <Drawer
@@ -124,7 +66,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        zIndex: theme.zIndex.appBar - 1, // Важно: должен быть под AppBar
+        zIndex: theme.zIndex.appBar - 1,
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           transition: theme.transitions.create('width', {
@@ -133,14 +75,13 @@ const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
           }),
           overflowX: 'hidden',
           boxSizing: 'border-box',
-          mt: '64px', // Высота AppBar
+          mt: '64px',
           height: 'calc(100vh - 64px)',
           backgroundColor: theme.palette.primary.main,
           color: theme.palette.primary.contrastText,
         },
       }}
     >
-      {/* Верхняя часть с кнопкой и пунктами меню */}
       <Box>
         <Box sx={{ display: "flex", justifyContent: open ? "flex-end" : "center", p: 2 }}>
           <IconButton 
@@ -153,7 +94,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
         </Box>
         <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.12)' }} />
         <List>
-          {MENU_ITEMS.map((item) => (
+          {menuItems.map((item) => (
             <Tooltip key={item.path} title={!open ? item.text : ""} placement="right" arrow>
               <ListItemButton
                 selected={location.pathname === item.path}
@@ -180,7 +121,6 @@ const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
         </List>
       </Box>
 
-      {/* Нижняя часть — профиль пользователя */}
       <Box sx={{ p: 2 }}>
         {user ? (
           <>
