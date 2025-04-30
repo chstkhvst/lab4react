@@ -1,3 +1,5 @@
+import { Reservation } from "./reservation";
+
 // Модель для запроса на вход
 export interface LoginRequest {
     userName: string
@@ -38,6 +40,7 @@ export interface CurrentUser {
   fullName?: string;
   phoneNumber?: string;
   id?: string;
+  reservations: Reservation[];
 }
 export interface User {
   id: string;
@@ -45,4 +48,5 @@ export interface User {
   fullName?: string;
   phoneNumber?: string;
   roles: string[];
+  //reservations?: Reservation[];
 }

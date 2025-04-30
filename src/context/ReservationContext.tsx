@@ -9,6 +9,7 @@ interface ReservationContextProps {
   addReservation: (reservation: Omit<Reservation, "id">) => void
   deleteReservation: (id: number) => void
   updateReservation: (id: number, reservation: Omit<Reservation, "id">) => Promise<Reservation>
+  refreshReservations: () => void
 }
 
 export const ReservationContext = createContext<ReservationContextProps | undefined>(undefined)
@@ -66,6 +67,7 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
         addReservation,
         deleteReservation,
         updateReservation,
+        refreshReservations: fetchReservations
       }}
     >
       {children}

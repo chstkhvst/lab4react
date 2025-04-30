@@ -6,7 +6,9 @@ import {
   Box,
   Avatar,
   CircularProgress,
-  Alert
+  Alert,
+  Chip,
+  Divider
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { User } from "../models/auth.models";
@@ -35,61 +37,142 @@ const UsersList: React.FC = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={4}>
-        <CircularProgress />
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center"
+        minHeight="60vh"
+        sx={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url(/nedviga.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <CircularProgress size={60} />
       </Box>
     );
   }
 
   if (error) {
-    return <Alert severity="error">{error}</Alert>;
+    return (
+      <Box
+        sx={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url(/nedviga.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '100vh',
+          p: 3
+        }}
+      >
+        <Alert severity="error" sx={{ maxWidth: 600, mx: 'auto' }}>{error}</Alert>
+      </Box>
+    );
   }
 
   return (
-    <Stack spacing={2} sx={{ mt: 2 }}>
-      {users.map((user) => (
-        <Paper
-          key={user.id}
-          elevation={3}
-          sx={{ 
-            p: 2, 
-            borderRadius: 2, 
-            display: 'flex', 
-            alignItems: 'center',
-            '&:hover': {
-              boxShadow: 4
-            }
-          }}
-        >
-          <Avatar sx={{ 
-            mr: 2, 
-            width: 56, 
-            height: 56,
-            bgcolor: 'primary.main',
-            fontSize: '1.5rem'
-          }}>
-            {user.userName?.charAt(0).toUpperCase()}
-          </Avatar>
+    <Box
+      sx={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url(/nedviga.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '100vh',
+        p: 3
+      }}
+    >
+      <Typography 
+        variant="h3" 
+        component="h1" 
+        gutterBottom 
+        sx={{ 
+          mb: 4,
+          fontWeight: 600,
+          color: 'primary.main',
+          textAlign: 'center',
+          textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+        }}
+      >
+        Список пользователей
+      </Typography>
 
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" gutterBottom>
-              {user.userName}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              <strong>ФИО:</strong> {user.fullName || "Не указано"}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              <strong>Телефон:</strong> {user.phoneNumber || "Не указан"}
-            </Typography>
-            {user.roles && (
-              <Typography variant="body1" color="text.secondary">
-                <strong>Роли:</strong> {user.roles.join(", ")}
-              </Typography>
-            )}
-          </Box>
-        </Paper>
-      ))}
-    </Stack>
+      <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
+        {users.map((user) => (
+          <Paper
+            key={user.id}
+            elevation={3}
+            sx={{ 
+              p: 3, 
+              borderRadius: 3,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 6
+              },
+              background: 'rgba(255, 255, 255, 0.85)'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Avatar 
+                sx={{ 
+                  mr: 3, 
+                  width: 64, 
+                  height: 64,
+                  bgcolor: 'primary.main',
+                  fontSize: '2rem',
+                  fontWeight: 500
+                }}
+              >
+                {user.userName?.charAt(0).toUpperCase()}
+              </Avatar>
+
+              <Box>
+                <Typography 
+                  variant="h5" 
+                  component="h2"
+                  sx={{ fontWeight: 600 }}
+                >
+                  {user.userName}
+                </Typography>
+                {user.roles && (
+                  <Box sx={{ mt: 1 }}>
+                    {user.roles.map(role => (
+                      <Chip
+                        key={role}
+                        label={role}
+                        size="small"
+                        color="secondary"
+                        sx={{ mr: 1, mb: 1 }}
+                      />
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Полное имя
+                </Typography>
+                <Typography variant="body1">
+                  {user.fullName || "Не указано"}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Телефон
+                </Typography>
+                <Typography variant="body1">
+                  {user.phoneNumber || "Не указан"}
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+        ))}
+      </Stack>
+    </Box>
   );
 };
 

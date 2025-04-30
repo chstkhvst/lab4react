@@ -9,14 +9,19 @@ import {
   Chip,
   IconButton,
 } from "@mui/material";
-import { ReservationContext } from "../context/ReservationContext";
-import { Reservation, ResStatus } from "../models/reservation";
 import CancelIcon from "@mui/icons-material/Cancel";
 
+import { ReservationContext } from "../context/ReservationContext";
+import { ContractContext } from "../context/ContractContext";
+import { AuthContext } from "../context/AuthContext";
+
+import { Reservation, ResStatus } from "../models/reservation";
+
 const ReservationList: React.FC = () => {
-  const { reservations, resStatuses, updateReservation } = useContext(
-    ReservationContext
-  )!;
+  const { reservations, resStatuses, updateReservation, refreshReservations } =
+    useContext(ReservationContext)!;
+  const { addContract } = useContext(ContractContext)!;
+  const { currentUser } = useContext(AuthContext)!;
   const navigate = useNavigate();
 
   const handleReject = async (reservation: Reservation) => {
@@ -36,101 +41,138 @@ const ReservationList: React.FC = () => {
     }
   };
 
+  const handleCreateContract = async (reservation: Reservation) => {
+    try {
+      const contract = {
+        reservationId: reservation.id,
+        userId: currentUser?.id!,
+        signDate: new Date().toISOString(),
+        total: reservation.object?.price || 0,
+      };
+
+      await addContract(contract);
+      await refreshReservations();
+    } catch (error) {
+      console.error("Ошибка при создании договора:", error);
+    }
+  };
+
   const formatDate = (dateString?: string | Date) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString("ru-RU");
   };
 
-  // Функция для получения текущего статуса
   const getCurrentStatus = (reservation: Reservation) => {
-    return resStatuses.find(s => s.id === reservation.resStatusId);
+    return resStatuses.find((s) => s.id === reservation.resStatusId);
   };
 
   return (
-    <Stack spacing={2}>
-      {reservations.map((reservation) => {
-        const currentStatus = getCurrentStatus(reservation);
-        const statusId = currentStatus?.id;
-        const statusName = currentStatus?.statusType || "Неизвестный статус";
+    <Box
+      sx={{
+        backgroundImage:
+          "linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url(/nedviga.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        p: 3,
+      }}
+    >
+      <Typography variant="h4" gutterBottom sx={{ mt: 6, mb: 4 }}>
+        Список бронирований
+      </Typography>
 
-        return (
-          <Paper
-            key={reservation.id}
-            elevation={3}
-            sx={{ p: 2, borderRadius: 2, position: "relative" }}
-          >
-            <Typography variant="h6" gutterBottom>
-              {reservation.object?.street}, д. {reservation.object?.building}
-              {reservation.object?.roomnum && `, кв. ${reservation.object.roomnum}`}
-            </Typography>
+      <Stack spacing={2}>
+        {reservations.map((reservation) => {
+          const currentStatus = getCurrentStatus(reservation);
+          const statusId = currentStatus?.id;
+          const statusName = currentStatus?.statusType || "Неизвестный статус";
 
-            <Box mb={2}>
-              <Chip
-                label={statusName}
-                color={
-                  statusId === 1 ? "primary" : // "Оставлена"
-                  statusId === 2 ? "success" : // "Одобрена"
-                  statusId === 3 ? "error" :   // "Отменена"
-                  "default"
-                }
-                size="small"
-                sx={{ mb: 1 }}
-              />
-            </Box>
+          return (
+            <Paper
+              key={reservation.id}
+              elevation={3}
+              sx={{ p: 2, borderRadius: 2, position: "relative" }}
+            >
+              <Typography variant="h6" gutterBottom>
+                {reservation.object?.street}, д. {reservation.object?.building}
+                {reservation.object?.roomnum &&
+                  `, кв. ${reservation.object.roomnum}`}
+              </Typography>
 
-            <Typography>
-              <strong>Период брони:</strong> {formatDate(reservation.startDate)} -{" "}
-              {formatDate(reservation.endDate)}
-            </Typography>
-
-            {reservation.user && (
-              <Box mt={1}>
-                <Typography variant="subtitle1">Информация о клиенте:</Typography>
-                <Typography>
-                  ФИО: {reservation.user.fullName || "Не указано"}
-                </Typography>
-                <Typography>Логин: {reservation.user.userName}</Typography>
-                <Typography>
-                  Телефон: {reservation.user.phoneNumber || "Не указан"}
-                </Typography>
+              <Box mb={2}>
+                <Chip
+                  label={statusName}
+                  color={
+                    statusId === 1
+                      ? "primary" // "Оставлена"
+                      : statusId === 2
+                      ? "success" // "Одобрена"
+                      : statusId === 3
+                      ? "error" // "Отменена"
+                      : "default"
+                  }
+                  size="small"
+                  sx={{ mb: 1 }}
+                />
               </Box>
-            )}
-            <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
-              {statusId === 1 && ( // Только для статуса "Оставлена" (ID=1)
-                <>
-                  <Button
-                    variant="contained"
-                    onClick={() => navigate(`/contracts/new/${reservation.id}`)}
-                  >
-                    Составить договор
-                  </Button>
-                  <IconButton
-                    color="error"
-                    title="Отменить бронь"
-                    onClick={() => handleReject(reservation)}
-                  >
-                    <CancelIcon />
-                  </IconButton>
-                </>
+
+              <Typography>
+                <strong>Период брони:</strong> {formatDate(reservation.startDate)}{" "}
+                - {formatDate(reservation.endDate)}
+              </Typography>
+
+              {reservation.user && (
+                <Box mt={1}>
+                  <Typography variant="subtitle1">
+                    Информация о клиенте:
+                  </Typography>
+                  <Typography>
+                    ФИО: {reservation.user.fullName || "Не указано"}
+                  </Typography>
+                  <Typography>Логин: {reservation.user.userName}</Typography>
+                  <Typography>
+                    Телефон: {reservation.user.phoneNumber || "Не указан"}
+                  </Typography>
+                </Box>
               )}
-              
-              {statusId === 3 && ( // Для статуса "Отменена" (ID=3)
-                <Typography variant="body2" color="text.secondary">
-                  Бронь отменена
-                </Typography>
-              )}
-              
-              {statusId === 2 && ( // Для статуса "Одобрена" (ID=2)
-                <Typography variant="body2" color="text.secondary">
-                  Бронь одобрена, договор заключен
-                </Typography>
-              )}
-            </Box>
-          </Paper>
-        );
-      })}
-    </Stack>
+
+              <Box mt={2} display="flex" gap={1} justifyContent="flex-end">
+                {statusId === 1 && ( // Только для статуса "Оставлена"
+                  <>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleCreateContract(reservation)}
+                    >
+                      Составить договор
+                    </Button>
+                    <IconButton
+                      color="error"
+                      title="Отменить бронь"
+                      onClick={() => handleReject(reservation)}
+                    >
+                      <CancelIcon />
+                    </IconButton>
+                  </>
+                )}
+
+                {statusId === 3 && (
+                  <Typography variant="body2" color="text.secondary">
+                    Бронь отменена
+                  </Typography>
+                )}
+
+                {statusId === 2 && (
+                  <Typography variant="body2" color="text.secondary">
+                    Бронь одобрена, договор заключен
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          );
+        })}
+      </Stack>
+    </Box>
   );
 };
 

@@ -112,7 +112,6 @@ class AuthService {
       const errorText = await response.text()
       throw new Error(`Failed to fetch user: ${errorText}`)
     }
-  
     return await response.json()
   }
   async updateUserProfile(data: {

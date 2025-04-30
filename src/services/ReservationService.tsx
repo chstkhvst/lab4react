@@ -35,6 +35,7 @@ class ReservationService {
   // Обновление бронирования
   async updateReservation(id: number, reservation: Omit<Reservation, "id">): Promise<Reservation> {
     const reservationWithId = { ...reservation, id };
+    console.log(reservationWithId)
     const response = await fetch(`${this.baseUrl}/Reservation/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

@@ -9,7 +9,7 @@ import "./index.css";
 const theme = createTheme({
   palette: {
     primary: { main: "rgba(144, 66, 245, 0.7)" }, 
-    secondary: { main: "rgba(66, 102, 245, 0.5)" }, 
+    secondary: { main: "rgba(161, 17, 204, 0.5)" }, 
   },
 });
 const root = ReactDOM.createRoot(

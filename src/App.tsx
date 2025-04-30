@@ -16,6 +16,7 @@ import AccountDetails from "./components/AccountDetails";
 import UsersList from "./components/UsersList";
 import { useAuth } from "./context/AuthContext";
 import ReservationList from "./components/ReservationList";
+import { ContractProvider } from "./context/ContractContext";
 
 const ProtectedRoute: React.FC<{ children: React.ReactElement, adminOnly?: boolean }> = ({
   children,
@@ -38,9 +39,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactElement, adminOnly?: boole
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
+    <ReservationProvider>
+      <AuthProvider>
       <REObjectProvider>
-        <ReservationProvider> 
+        <ContractProvider> 
           <Router>
             <Layout>
               <Routes>
@@ -106,9 +108,11 @@ const App: React.FC = () => {
               </Routes>
             </Layout>
           </Router>
-        </ReservationProvider> 
+        </ContractProvider> 
       </REObjectProvider>
     </AuthProvider>
+    </ReservationProvider>
+
   );
 };
 
