@@ -1,56 +1,3 @@
-// import React, { useContext } from "react"
-// import { REObjectContext } from "../context/REObjectContext"
-// import { Link, useNavigate } from "react-router-dom"
-
-
-// // Компонент для отображения списка объектов
-// const REObjectList: React.FC = () => {
-//   const context = useContext(REObjectContext) // Получаем доступ к глобальному состоянию из контекста
-//   const navigate = useNavigate() // Хук для программной навигации между страницами
-
-
-//   if (!context) return <div>No context available!</div>
-
-
-//   const { reobjects, deleteREObject } = context
-
-//   const handleDelete = (id: number) => {
-//     const isConfirmed = window.confirm("Are you sure you want to delete this project?")
-//     if (isConfirmed) {
-//       deleteREObject(id) // Удаляем проект, если пользователь подтвердил действие
-//     }
-//   }
-
-//   return (
-//     <div>
-//       <h2>REObjects</h2>
-//       {/* Кнопка для добавления нового объекта */}  
-//       <button onClick={() => navigate("reobjects/add")}>Add New Object</button>
-
-
-//       {/* Отображение списка объекта */}
-//       {reobjects.map((reobject) => (
-//           <p key={reobject.id}>
-//             <h2>
-//               {`${reobject.street}, д. ${reobject.building}${
-//                 reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""
-//               }`}
-//             </h2>
-//             <p>
-//               Площадь: {reobject.square} м² | Этажей: {reobject.floors} | Комнат:{" "}
-//               {reobject.rooms}
-//             </p>
-//             <p>Цена: {reobject.price} руб.</p>
-//             <Link to={`/reobjects/${reobject.id}`}>Подробнее</Link>
-//             <button onClick={() => handleDelete(reobject.id)}>Delete</button> {/* Удаление  */}
-//           </p>
-//         ))}
-//     </div>
-//   )
-// }
-
-
-// export default REObjectList
 import React from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
@@ -59,16 +6,23 @@ import {
   Button,
   Stack,
   Box,
-  Link
+  Link,
+  Chip,
+  Divider,
+  CircularProgress
 } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import InfoIcon from '@mui/icons-material/Info';
+import AddIcon from '@mui/icons-material/Add';
 import { REObject } from "../models/reobject"; 
 
 interface Props {
   objects: REObject[];
   onDelete?: (id: number) => void;
+  isLoading?: boolean;
 }
 
-const REObjectList: React.FC<Props> = ({ objects, onDelete }) => {
+const REObjectList: React.FC<Props> = ({ objects, onDelete, isLoading = false }) => {
   const navigate = useNavigate();
 
   const handleDelete = (id: number) => {
@@ -78,45 +32,167 @@ const REObjectList: React.FC<Props> = ({ objects, onDelete }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center"
+        minHeight="200px"
+      >
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+
   return (
-    <Stack spacing={2}>
-      {objects.map((reobject) => (
-        <Paper
-          key={reobject.id}
-          elevation={3}
-          sx={{ p: 2, borderRadius: 2 }}
+    <Box
+      sx={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url(/nedviga.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '100vh',
+        p: 3
+      }}
+    >
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        alignItems="center" 
+        mb={4}
+      >
+        <Typography 
+          variant="h4" 
+          component="h1"
+          sx={{ 
+            fontWeight: 600,
+            color: 'primary.main'
+          }}
         >
-          <Typography variant="h6" gutterBottom>
-            {`${reobject.street}, д. ${reobject.building}${
-              reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""
-            }`}
-          </Typography>
-          <Typography>Площадь: {reobject.square} м²</Typography>
-          <Typography>Этаж: {reobject.floors} | Комнат: {reobject.rooms}</Typography>
-          <Typography>Цена: {reobject.price.toLocaleString()} руб.</Typography>
+          Объекты недвижимости
+        </Typography>
 
-          <Box mt={2} display="flex" gap={1}>
-            <Link
-              component={RouterLink}
-              to={`/objects/${reobject.id}`}
-              underline="none"
-            >
-              <Button variant="outlined">Подробнее</Button>
-            </Link>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate("/objects/add")}
+        >
+          Добавить объект
+        </Button>
+      </Box>
 
-            {onDelete && (
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => handleDelete(reobject.id)}
+      <Stack spacing={3} sx={{ maxWidth: 1200, mx: 'auto' }}>
+        {objects.map((reobject) => (
+          <Paper
+            key={reobject.id}
+            elevation={3}
+            sx={{ 
+              p: 3, 
+              borderRadius: 2,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 6
+              },
+              backgroundColor: 'rgba(255, 255, 255, 0.85)'
+            }}
+          >
+            <Box display="flex" justifyContent="space-between">
+              <Box>
+                <Typography 
+                  variant="h5" 
+                  component="h2"
+                  sx={{ fontWeight: 600, mb: 1 }}
+                >
+                  {`${reobject.street}, д. ${reobject.building}${
+                    reobject.roomnum ? `, кв. ${reobject.roomnum}` : ""
+                  }`}
+                </Typography>
+
+                {reobject.objectType && (
+                  <Chip
+                    label={reobject.objectType.typeName}
+                    color="primary"
+                    size="small"
+                    sx={{ mr: 1, mb: 1 }}
+                  />
+                )}
+
+                {reobject.dealType && (
+                  <Chip
+                    label={reobject.dealType.dealName}
+                    color="secondary"
+                    size="small"
+                    sx={{ mr: 1, mb: 1 }}
+                  />
+                )}
+              </Box>
+
+              <Typography variant="h6" color="primary.main">
+                {reobject.price.toLocaleString()} руб.
+              </Typography>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box display="flex" flexWrap="wrap" gap={4}>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Площадь
+                </Typography>
+                <Typography variant="body1">
+                  {reobject.square} м²
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Комнат
+                </Typography>
+                <Typography variant="body1">
+                  {reobject.rooms}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Этажей
+                </Typography>
+                <Typography variant="body1">
+                  {reobject.floors}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
+              <Link
+                component={RouterLink}
+                to={`/objects/${reobject.id}`}
+                underline="none"
               >
-                Удалить
-              </Button>
-            )}
-          </Box>
-        </Paper>
-      ))}
-    </Stack>
+                <Button
+                  variant="outlined"
+                  startIcon={<InfoIcon />}
+                >
+                  Подробнее
+                </Button>
+              </Link>
+
+              {onDelete && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => handleDelete(reobject.id)}
+                >
+                  Удалить
+                </Button>
+              )}
+            </Box>
+          </Paper>
+        ))}
+      </Stack>
+    </Box>
   );
 };
 

@@ -23,7 +23,8 @@ import {
   AccountCircle,
   Logout,
   People,
-  Bookmark
+  Bookmark,
+  Description
 } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -47,12 +48,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
     { text: "Все объекты", icon: <Home />, path: "/objects-for-users" },
   ];
 
-  // Пункты меню администратора (добавлен новый пункт)
-  const ADMIN_MENU_ITEMS = [
-    { text: "Редактировать объекты", icon: <Settings />, path: "/objects" },
-    { text: "Все пользователи", icon: <People />, path: "/all-users" },
-    { text: "Бронирования", icon: <Bookmark />, path: "/reservations" } 
-  ];
+const ADMIN_MENU_ITEMS = [
+  { text: "Редактировать объекты", icon: <Settings />, path: "/objects" },
+  { text: "Все пользователи", icon: <People />, path: "/all-users" },
+  { text: "Бронирования", icon: <Bookmark />, path: "/reservations" },
+  { text: "Договоры", icon: <Description />, path: "/contracts" } 
+];
 
   // Формируем полный список пунктов меню
   const menuItems = [

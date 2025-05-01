@@ -17,6 +17,8 @@ import UsersList from "./components/UsersList";
 import { useAuth } from "./context/AuthContext";
 import ReservationList from "./components/ReservationList";
 import { ContractProvider } from "./context/ContractContext";
+import ContractList from "./components/ContractList";
+import ContractDetails from "./components/ContractDetails";
 
 const ProtectedRoute: React.FC<{ children: React.ReactElement, adminOnly?: boolean }> = ({
   children,
@@ -86,6 +88,23 @@ const App: React.FC = () => {
                   element={
                     <ProtectedRoute adminOnly>
                       <ReservationList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contracts"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <ContractList/>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/contracts/:id"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <ContractDetails />
                     </ProtectedRoute>
                   }
                 />
