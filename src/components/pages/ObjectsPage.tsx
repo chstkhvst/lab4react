@@ -3,7 +3,8 @@ import { Container, Typography, Button, Box } from '@mui/material';
 import REObjectList from '../REObjectList';
 import { REObjectContext } from '../../context/REObjectContext';
 import { useAuth, UserRole } from '../../context/AuthContext';
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import AddIcon from '@mui/icons-material/Add';
 
 const ObjectPage: React.FC = () => {
   const context = useContext(REObjectContext);
@@ -38,6 +39,7 @@ const ObjectPage: React.FC = () => {
             variant="contained" 
             onClick={() => navigate("/objects/add")}
             sx={{ mb: 4 }}
+            startIcon={<AddIcon />}
           >
             Добавить новый объект
           </Button>

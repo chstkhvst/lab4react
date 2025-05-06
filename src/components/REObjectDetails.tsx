@@ -16,7 +16,9 @@ import {
   MenuItem, 
   Select,
   Chip,
-  Paper
+  Paper,
+  FormLabel,
+  Icon
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -37,6 +39,9 @@ const REObjectDetails: React.FC = () => {
   const [reobject, setREObject] = useState<REObject | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [formState, setFormState] = useState<REObject | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
 
   const fetchREObject = async () => {
     if (id) {
@@ -55,7 +60,6 @@ const REObjectDetails: React.FC = () => {
     if (context) {
       const foundObject = context.reobjects.find(obj => obj.id === parseInt(id || "", 10));
       if (foundObject) {
-        console.log('Found object with images:', foundObject.objectImages);
         setREObject(foundObject);
         setFormState(foundObject);
       } else {
@@ -64,8 +68,16 @@ const REObjectDetails: React.FC = () => {
     }
   }, [context, id]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
     if (formState && context) {
       try {
         const updatedData: Omit<REObject, "id"> = {
@@ -82,15 +94,25 @@ const REObjectDetails: React.FC = () => {
           dealType: formState.dealType,
           objectType: formState.objectType,
           status: formState.status,
+          objectImages: formState.objectImages?.filter(img => !imagesToDelete.includes(img.id))
         };
-
-        const updatedObject = await APIService.updateREObject(formState.id, updatedData);
+  
+        const updatedObject = await context.updateREObject(
+          formState.id, 
+          updatedData,
+          files,
+          imagesToDelete
+        );
+        
         setREObject(updatedObject);
-        context.updateREObject(formState.id, updatedData);
         setEditMode(false);
+        setFiles([]);
+        setImagesToDelete([]);
       } catch (error) {
         console.error("Failed to update object:", error);
-        alert("Failed to update object.");
+        alert(error instanceof Error ? error.message : "Failed to update object");
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -117,13 +139,12 @@ const REObjectDetails: React.FC = () => {
           color: 'primary.main'
         }}
       >
-        Детали объекта недвижимости
+        {editMode ? "Редактирование объекта" : "Детали объекта недвижимости"}
       </Typography>
 
       {!editMode ? (
         <Paper elevation={3} sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.85)' }}>
           <Stack spacing={2}>
-            {/* Свайпер с изображениями */}
             {reobject.objectImages && reobject.objectImages.length > 0 && (
               <Box sx={{ 
                 height: 500,
@@ -157,6 +178,7 @@ const REObjectDetails: React.FC = () => {
                 </Swiper>
               </Box>
             )}
+
             <Typography variant="h6">
               <strong>Адрес:</strong>{" "}
               {`${reobject.street}, д. ${reobject.building}${reobject.roomnum != null ? `, кв. ${reobject.roomnum}` : ""}`}
@@ -294,7 +316,87 @@ const REObjectDetails: React.FC = () => {
                   onChange={(e) => setFormState({ ...formState!, price: Number(e.target.value) })}
                 />
               </Stack>
+              <FormControl fullWidth>
+              <FormLabel>Изображения объекта</FormLabel>
 
+              {/* Секция существующих изображений */}
+              {formState?.objectImages && formState.objectImages.length > 0 && (
+                <Box mt={3}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Текущие изображения
+                  </Typography>
+                  <Box 
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 2,
+                      mt: 2,
+                      p: 2,
+                      border: '1px dashed #ccc',
+                      borderRadius: 1
+                    }}
+                  >
+                    {formState.objectImages.map(image => (
+                      <Box 
+                        key={image.id}
+                        sx={{
+                          position: 'relative',
+                          border: imagesToDelete.includes(image.id) 
+                            ? '2px solid red' 
+                            : '1px solid #ddd',
+                          borderRadius: 1,
+                          p: 1,
+                          opacity: imagesToDelete.includes(image.id) ? 0.6 : 1
+                        }}
+                      >
+                        <img
+                          src={`https://localhost:7020/${image.imagePath}`}
+                          alt={`Объект ${image.id}`}
+                          style={{
+                            width: 150,
+                            height: 150,
+                            objectFit: 'cover'
+                          }}
+                        />
+                        <Box 
+                          sx={{
+                            position: 'absolute',
+                            bottom: 8,
+                            left: 0,
+                            right: 0,
+                            display: 'flex',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => {
+                              if (imagesToDelete.includes(image.id)) {
+                                setImagesToDelete(imagesToDelete.filter(id => id !== image.id));
+                              } else {
+                                setImagesToDelete([...imagesToDelete, image.id]);
+                              }
+                            }}
+                            color={imagesToDelete.includes(image.id) ? "error" : "primary"}
+                            sx={{
+                              backgroundColor: 'rgba(213, 29, 29, 0.7)'
+                            }}
+                          >
+                            {imagesToDelete.includes(image.id) ? "Отменить" : "Удалить"}
+                          </Button>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                  {imagesToDelete.length > 0 && (
+                    <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                      Выбранные изображения будут удалены
+                    </Typography>
+                  )}
+                </Box>
+              )}
+            </FormControl>
               <FormControl fullWidth required>
                 <InputLabel>Тип сделки</InputLabel>
                 <Select
@@ -349,20 +451,38 @@ const REObjectDetails: React.FC = () => {
                 </Select>
               </FormControl>
 
+              <FormControl fullWidth>
+                <FormLabel>Добавить изображения</FormLabel>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileChange}
+                  style={{ marginTop: 8 }}
+                />
+                {files.length > 0 && (
+                  <Typography variant="caption" color="text.secondary">
+                    Выбрано новых файлов: {files.length}
+                  </Typography>
+                )}
+              </FormControl>
+
               <Stack direction="row" spacing={2} justifyContent="flex-end">
                 <Button 
                   type="submit" 
                   variant="contained" 
                   color="success"
                   startIcon={<SaveIcon />}
+                  disabled={isSubmitting}
                 >
-                  Сохранить
+                  {isSubmitting ? "Сохранение..." : "Сохранить"}
                 </Button>
                 <Button 
                   variant="outlined" 
                   color="secondary" 
                   startIcon={<CancelIcon />}
                   onClick={() => setEditMode(false)}
+                  disabled={isSubmitting}
                 >
                   Отмена
                 </Button>

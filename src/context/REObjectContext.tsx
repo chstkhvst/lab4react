@@ -10,17 +10,17 @@ interface REObjectContextProps {
   statuses: Status[] // Справочник статусов
   resStatuses: ResStatus[] // Справочник ResStatus
 
-  addREObject: (reobject: Omit<REObject, "id">, files?: File[]) => Promise<void>; // Добавление нового 
+  addREObject: (reobject: Omit<REObject, "id">, files?: File[]) => Promise<void>;
   deleteREObject: (id: number) => void
-  updateREObject: (id: number, reobject: Omit<REObject, "id">) => Promise<REObject>
+  updateREObject: (id: number, reobject: Omit<REObject, "id">, files?: File[], imagesToDelete?: number[]) => Promise<REObject>
 }
 
 // Создание контекста
 export const REObjectContext = createContext<REObjectContextProps | undefined>(undefined)
 
-// Провайдер контекста для предоставления данных всему приложению
+// Провайдер контекста
 export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [reobjects, setREObjects] = useState<REObject[]>([]) // Локальное состояние для всех объектов
+  const [reobjects, setREObjects] = useState<REObject[]>([])
   const [dealTypes, setDealTypes] = useState<DealType[]>([])
   const [objectTypes, setObjectTypes] = useState<ObjectType[]>([])
   const [statuses, setStatuses] = useState<Status[]>([])
@@ -31,7 +31,6 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
     fetchCatalogs()
   }, [])
 
-  // Получение объектов недвижимости
   const fetchREObjects = async () => {
     try {
       const data = await APIService.getREObjects()
@@ -41,7 +40,6 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }
 
-  // Получение справочников
   const fetchCatalogs = async () => {
     try {
       const [dt, ot, st, rst] = await Promise.all([
@@ -59,45 +57,32 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }
 
-  // Добавление нового объекта
-  // const addREObject = async (reobject: Omit<REObject, "id">) => {
-  //   await APIService.createREObject(reobject)
-  //   const updatedList = await APIService.getREObjects()
-  //   setREObjects(updatedList)
-  // }
   const addREObject = async (reobject: Omit<REObject, "id">, files: File[] = []) => {
     await APIService.createREObject(reobject, files);
     const updatedList = await APIService.getREObjects();
     setREObjects(updatedList);
   };
-  
 
-  // Удаление объекта
   const deleteREObject = async (id: number) => {
     await APIService.deleteREObject(id)
     setREObjects(reobjects.filter((obj) => obj.id !== id))
   }
-
-  // // Обновление объекта
-  // const updateREObject = async (id: number, updatedREObject: Omit<REObject, "id">): Promise<REObject> => {
-  //   const response = await APIService.updateREObject(id, updatedREObject)
-  //   setREObjects(prevREObjects => prevREObjects.map(obj => obj.id === id ? { ...obj, ...response } : obj))
-  //   return response
-  // }
-
-  const updateREObject = async (id: number, updatedREObject: Omit<REObject, "id">): Promise<REObject> => {
-    // Отправляем обновлённые данные на сервер
-    const response = await APIService.updateREObject(id, updatedREObject);
-    
-    // Загружаем обновлённый список объектов с сервера
+  const updateREObject = async (
+    id: number, 
+    updatedREObject: Omit<REObject, "id">, 
+    files: File[] = [], 
+    imagesToDelete: number[] = []
+  ): Promise<REObject> => {
+    const response = await APIService.updateREObject(
+      id, 
+      updatedREObject, 
+      files, 
+      imagesToDelete
+    );
     const updatedList = await APIService.getREObjects();
-    
-    // Обновляем состояние списком из сервера
     setREObjects(updatedList);
-    
     return response;
   }
-  
   return (
     <REObjectContext.Provider
       value={{

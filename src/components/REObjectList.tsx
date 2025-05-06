@@ -94,6 +94,13 @@ const REObjectList: React.FC<Props> = ({ objects, onDelete }) => {
                     sx={{ mr: 1, mb: 1 }}
                   />
                 )}
+                {onDelete && reobject.status && (
+                  <Chip
+                    label={reobject.status.statusName}
+                    size="small"
+                    sx={{ mr: 1, mb: 1 }}
+                  />
+                )}
               </Box>
 
               <Typography variant="h6" color="primary.main">

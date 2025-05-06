@@ -65,19 +65,58 @@ async createREObject(reobject: Omit<REObject, "id">, files: File[] = []): Promis
   }
 
     // Обновление существующего объекта
-    async updateREObject(id: number, reobject: Omit<REObject, "id">): Promise<REObject> {
-      // Включаем id обратно в объект 
-      const reobjectWithId = { ...reobject, id };
+    // async updateREObject(id: number, reobject: Omit<REObject, "id">): Promise<REObject> {
+    //   // Включаем id обратно в объект 
+    //   const reobjectWithId = { ...reobject, id };
     
-      const response = await fetch(`${this.baseUrl}/REObject/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reobjectWithId),
-      });
+    //   const response = await fetch(`${this.baseUrl}/REObject/${id}`, {
+    //     method: "PUT",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(reobjectWithId),
+    //   });
     
-      if (!response.ok) throw new Error("Failed to update");
-      return await response.json();
+    //   if (!response.ok) throw new Error("Failed to update");
+    //   return await response.json();
+    // }
+
+// Обновление существующего объекта с поддержкой файлов
+async updateREObject(
+  id: number, 
+  reobject: Omit<REObject, "id">, 
+  files: File[] = [], 
+  imagesToDelete: number[] = []
+): Promise<REObject> {
+  const formData = new FormData();
+
+  // Добавляем данные объекта
+  Object.entries(reobject).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
     }
+  });
+
+  // Добавляем файлы
+  files.forEach(file => {
+    formData.append('files', file);
+  });
+
+  // Добавляем IDs изображений для удаления
+  imagesToDelete.forEach(id => {
+    formData.append('imagesToDelete', id.toString());
+  });
+
+  const response = await fetch(`${this.baseUrl}/REObject/${id}`, {
+    method: 'PUT',
+    body: formData
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+
+  return await response.json();
+}
     async getREObjectById(id: number): Promise<REObject> {
       const response = await fetch(`${this.baseUrl}/REObject/${id}`);
       if (!response.ok) throw new Error("Failed to fetch");
