@@ -15,15 +15,46 @@ class APIService {
   }
 
   // Создание нового объекта недвижимости
-  async createREObject(reobject: Omit<REObject, "id">): Promise<REObject> {
+async createREObject(reobject: Omit<REObject, "id">, files: File[] = []): Promise<REObject> {
+  const formData = new FormData();
+  
+  // Добавляем каждое поле объекта отдельно
+  Object.entries(reobject).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      // Для вложенных объектов преобразуем в строку
+      if (typeof value === 'object') {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, value.toString());
+      }
+    }
+  });
+  
+  // Добавляем файлы
+  files.forEach((file, index) => {
+    formData.append(`files`, file); // Просто 'files' без индекса
+  });
+
+  try {
     const response = await fetch(`${this.baseUrl}/REObject`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(reobject),
-    })
-    if (!response.ok) throw new Error("Failed to create object")
-    return await response.json()
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || await response.text() || 'Failed to create object');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error details:', {
+      error,
+      request: { url: `${this.baseUrl}/REObject`, method: 'POST' }
+    });
+    throw error;
   }
+}
   
   // Удаление проекта
   async deleteREObject(id: number): Promise<void> {

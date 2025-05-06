@@ -43,10 +43,10 @@ const SideMenu: React.FC<SideMenuProps> = ({ onMenuItemClick }) => {
   const drawerWidth = open ? 240 : 72;
 
   // Базовые пункты меню (без изменений)
-  const BASE_MENU_ITEMS = [
+  const BASE_MENU_ITEMS = user && !isAdmin ? [
     { text: "Главная", icon: <Info />, path: "/" },
     { text: "Все объекты", icon: <Home />, path: "/objects-for-users" },
-  ];
+  ] : [{ text: "Главная", icon: <Info />, path: "/" }];
 
 const ADMIN_MENU_ITEMS = [
   { text: "Редактировать объекты", icon: <Settings />, path: "/objects" },
@@ -157,7 +157,10 @@ const ADMIN_MENU_ITEMS = [
                 variant="outlined"
                 size="small"
                 startIcon={<Logout />}
-                onClick={logout}
+                onClick={()=>{
+                  navigate("/")
+                  setTimeout(() => logout(), 200);
+                }}
                 sx={{
                   mt: 1,
                   color: 'inherit',

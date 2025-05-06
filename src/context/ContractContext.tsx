@@ -23,6 +23,7 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
   const fetchContracts = async () => {
     try {
       const data = await ContractService.getContracts()
+
       setContracts(data || [])
     } catch (error) {
       console.error("Ошибка загрузки договоров:", error)

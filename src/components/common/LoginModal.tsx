@@ -99,7 +99,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
             <Button
               type="submit"
               variant="contained"
-              disabled={isLoading}
+              disabled={isLoading || userName.length === 0 || !password.length}
               // Кнопка недоступна, если идет загрузка.
               endIcon={isLoading ? <CircularProgress size={20} /> : null}
               // Показываем индикатор загрузки внутри кнопки, если isLoading === true.

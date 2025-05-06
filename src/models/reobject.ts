@@ -15,23 +15,11 @@ export interface ResStatus {
     id: number;
     statusType: string;
 }
-
-// export interface REObject {
-//     id: number;
-//     rooms: number;
-//     floors: number;
-//     square: number;
-//     street: string;
-//     building: number;
-//     roomnum?: number;
-//     price: number;
-//     dealtypeid: number;
-//     typeid: number;
-//     statusid: number;
-//     /* dealType: DealType;
-//     objectType: ObjectType;
-//     status: Status; */
-//   }
+export interface ObjectImages {
+    id: number;
+    imagePath: string;
+    objectId: number;
+}
 export interface REObject {
     id: number;
     rooms: number;
@@ -56,4 +44,5 @@ export interface REObject {
       id: number;
       typeName: string;
     };
+    objectImages?: ObjectImages[];
   }

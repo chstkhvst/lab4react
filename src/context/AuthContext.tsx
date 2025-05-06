@@ -22,7 +22,8 @@ interface AuthContextType {
   logout: () => void
   register: (data: RegisterRequest) => Promise<void>
   isAdmin: boolean
-  getAllUsers: () => Promise<User[]> // Новый метод
+  isLoading: boolean,
+  getAllUsers: () => Promise<User[]> 
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<LoginResponse | null>(null)
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchCurrentUser = async () => {
     try {
@@ -48,10 +50,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const token = authService.getToken()
     if (token) {
+
       const storedUser = localStorage.getItem("user")
       if (storedUser) setUser(JSON.parse(storedUser))
       fetchCurrentUser()
     }
+    setIsLoading(false)
   }, [])
 
   const login = async (userName: string, password: string) => {
@@ -98,7 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout,
       register,
       isAdmin,
-      getAllUsers // Добавленный метод
+      isLoading,
+      getAllUsers
     }}>
       {children}
     </AuthContext.Provider>

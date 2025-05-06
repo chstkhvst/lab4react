@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom"
 
 const ObjectPage: React.FC = () => {
   const context = useContext(REObjectContext);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate()
 
   if (!context) {
@@ -15,11 +15,6 @@ const ObjectPage: React.FC = () => {
   }
 
   const { reobjects, deleteREObject } = context;
-
-  // // Проверяем, является ли пользователь администратором
-  // if (user?.userRole !== UserRole.Admin) {
-  //   return <Typography>У вас нет доступа к этой странице.</Typography>;
-  // }
 
   return (
     <Box sx={{
@@ -50,6 +45,7 @@ const ObjectPage: React.FC = () => {
             objects={reobjects} 
             onDelete={deleteREObject} 
           />
+          
         </Box>
       </Container>
     </Box>

@@ -1,23 +1,3 @@
-// import React from 'react';
-// import { Container, Typography, Button } from '@mui/material';
-// import { useNavigate } from 'react-router-dom';
-
-// const Home: React.FC = () => {
-//   const navigate = useNavigate();
-
-//   return (
-//     <Container sx={{ mt: 6 }}>
-//       <Typography variant="h3" gutterBottom>
-//         Главная
-//       </Typography>
-//       <Button variant="contained" color="primary" onClick={() => navigate('/objects-for-users')}>
-//         Перейти к объектам
-//       </Button>
-//     </Container>
-//   );
-// };
-
-// export default Home;
 import React, { useState } from 'react';
 import { 
   Container, 
@@ -32,10 +12,12 @@ import {
 } from '@mui/material';
 import { Email, Apartment, Close } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [openContact, setOpenContact] = useState(false);
+  const {user, isAdmin} = useAuth();
 
   return (
     <Box sx={{
@@ -78,7 +60,14 @@ const Home: React.FC = () => {
               variant="contained" 
               size="large"
               startIcon={<Apartment />}
-              onClick={() => navigate('/objects-for-users')}
+              onClick={() => {
+                if(user && !isAdmin)
+                  navigate('/objects-for-users')
+                if (user && isAdmin)
+                  navigate('/objects')
+                else
+                  alert("Войдите в систему или зарегистрируйтесь!")
+              }}
               sx={{
                 px: 4,
                 py: 1.5,

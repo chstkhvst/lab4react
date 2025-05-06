@@ -19,10 +19,9 @@ import { REObject } from "../models/reobject";
 interface Props {
   objects: REObject[];
   onDelete?: (id: number) => void;
-  isLoading?: boolean;
 }
 
-const REObjectList: React.FC<Props> = ({ objects, onDelete, isLoading = false }) => {
+const REObjectList: React.FC<Props> = ({ objects, onDelete }) => {
   const navigate = useNavigate();
 
   const handleDelete = (id: number) => {
@@ -31,19 +30,6 @@ const REObjectList: React.FC<Props> = ({ objects, onDelete, isLoading = false })
       onDelete(id);
     }
   };
-
-  if (isLoading) {
-    return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center"
-        minHeight="200px"
-      >
-        <CircularProgress size={60} />
-      </Box>
-    );
-  }
 
   return (
     <Box
@@ -61,24 +47,6 @@ const REObjectList: React.FC<Props> = ({ objects, onDelete, isLoading = false })
         alignItems="center" 
         mb={4}
       >
-        <Typography 
-          variant="h4" 
-          component="h1"
-          sx={{ 
-            fontWeight: 600,
-            color: 'primary.main'
-          }}
-        >
-          Объекты недвижимости
-        </Typography>
-
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate("/objects/add")}
-        >
-          Добавить объект
-        </Button>
       </Box>
 
       <Stack spacing={3} sx={{ maxWidth: 1200, mx: 'auto' }}>

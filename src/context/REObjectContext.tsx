@@ -10,7 +10,7 @@ interface REObjectContextProps {
   statuses: Status[] // Справочник статусов
   resStatuses: ResStatus[] // Справочник ResStatus
 
-  addREObject: (reobject: Omit<REObject, "id">) => void // Добавление нового 
+  addREObject: (reobject: Omit<REObject, "id">, files?: File[]) => Promise<void>; // Добавление нового 
   deleteREObject: (id: number) => void
   updateREObject: (id: number, reobject: Omit<REObject, "id">) => Promise<REObject>
 }
@@ -60,11 +60,17 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
   }
 
   // Добавление нового объекта
-  const addREObject = async (reobject: Omit<REObject, "id">) => {
-    await APIService.createREObject(reobject)
-    const updatedList = await APIService.getREObjects()
-    setREObjects(updatedList)
-  }
+  // const addREObject = async (reobject: Omit<REObject, "id">) => {
+  //   await APIService.createREObject(reobject)
+  //   const updatedList = await APIService.getREObjects()
+  //   setREObjects(updatedList)
+  // }
+  const addREObject = async (reobject: Omit<REObject, "id">, files: File[] = []) => {
+    await APIService.createREObject(reobject, files);
+    const updatedList = await APIService.getREObjects();
+    setREObjects(updatedList);
+  };
+  
 
   // Удаление объекта
   const deleteREObject = async (id: number) => {

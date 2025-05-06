@@ -19,13 +19,14 @@ import ReservationList from "./components/ReservationList";
 import { ContractProvider } from "./context/ContractContext";
 import ContractList from "./components/ContractList";
 import ContractDetails from "./components/ContractDetails";
+import { CircularProgress } from "@mui/material";
 
 const ProtectedRoute: React.FC<{ children: React.ReactElement, adminOnly?: boolean }> = ({
   children,
   adminOnly = false,
 }) => {
-  const { user, isAdmin } = useAuth();
-
+  const { user, isAdmin, isLoading } = useAuth();
+  if (isLoading) return <CircularProgress/>
   if (!user) {
     alert("Недостаточно прав. Выполните вход!");
     return <Navigate to="/" replace />;

@@ -22,6 +22,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 const REObjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +55,7 @@ const REObjectDetails: React.FC = () => {
     if (context) {
       const foundObject = context.reobjects.find(obj => obj.id === parseInt(id || "", 10));
       if (foundObject) {
+        console.log('Found object with images:', foundObject.objectImages);
         setREObject(foundObject);
         setFormState(foundObject);
       } else {
@@ -99,7 +105,7 @@ const REObjectDetails: React.FC = () => {
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       minHeight: '100vh',
-      p: 3
+      p: 3,
     }}>
       <Typography 
         variant="h4" 
@@ -117,6 +123,40 @@ const REObjectDetails: React.FC = () => {
       {!editMode ? (
         <Paper elevation={3} sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.85)' }}>
           <Stack spacing={2}>
+            {/* Свайпер с изображениями */}
+            {reobject.objectImages && reobject.objectImages.length > 0 && (
+              <Box sx={{ 
+                height: 500,
+                mb: 3,
+                borderRadius: 2,
+                overflow: 'hidden'
+              }}>
+                <Swiper
+                  modules={[Navigation, Pagination]}
+                  navigation
+                  pagination={{ clickable: true }}
+                  spaceBetween={20}
+                  slidesPerView={1}
+                  style={{ 
+                    height: '100%'
+                  }}
+                >
+                  {reobject.objectImages!.map((image) => (
+                    <SwiperSlide key={image.id}>
+                      <img 
+                        src={"https://localhost:7020/"+image.imagePath} 
+                        alt={`Объект ${reobject.id}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </Box>
+            )}
             <Typography variant="h6">
               <strong>Адрес:</strong>{" "}
               {`${reobject.street}, д. ${reobject.building}${reobject.roomnum != null ? `, кв. ${reobject.roomnum}` : ""}`}
