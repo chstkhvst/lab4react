@@ -10,8 +10,19 @@ const ObjectsPageForUsers: React.FC = () => {
   if (!context) {
     return <Typography>Контекст не найден</Typography>;
   }
+  const { reobjects, fetchFilteredObjects } = context;
+  const handleFilterChange = async (filters: {
+    objectTypeId?: number;
+    dealTypeId?: number;
+    statusId?: number;
+  }) => {
+    await fetchFilteredObjects(filters);
+  };
 
-  const { reobjects } = context; // Берем только reobjects
+  const handleResetFilters = async () => {
+    await fetchFilteredObjects({}); // Пустые фильтры = сброс
+  };
+  //const { reobjects } = context; // Берем только reobjects
 
   return (
 <Box sx={{
@@ -39,7 +50,11 @@ const ObjectsPageForUsers: React.FC = () => {
           >
             Объекты недвижимости
           </Typography>
-          <REObjectList objects={reobjects} />
+          <REObjectList objects={reobjects} 
+            objectTypes={context.objectTypes}
+            dealTypes={context.dealTypes}
+            onFilterChange={handleFilterChange}
+          />
         </Box>
       </Container>
       </Box>

@@ -1,4 +1,9 @@
 import { REObject, DealType, ObjectType, Status, ResStatus } from "../models/reobject"
+interface FilterParams {
+  typeId?: number;
+  dealTypeId?: number;
+  statusId?: number;
+}
 // Класс для работы с API
 class APIService {
   private baseUrl: string
@@ -63,22 +68,6 @@ async createREObject(reobject: Omit<REObject, "id">, files: File[] = []): Promis
     })
     if (!response.ok) throw new Error("Failed to delete")
   }
-
-    // Обновление существующего объекта
-    // async updateREObject(id: number, reobject: Omit<REObject, "id">): Promise<REObject> {
-    //   // Включаем id обратно в объект 
-    //   const reobjectWithId = { ...reobject, id };
-    
-    //   const response = await fetch(`${this.baseUrl}/REObject/${id}`, {
-    //     method: "PUT",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(reobjectWithId),
-    //   });
-    
-    //   if (!response.ok) throw new Error("Failed to update");
-    //   return await response.json();
-    // }
-
 // Обновление существующего объекта с поддержкой файлов
 async updateREObject(
   id: number, 
@@ -146,7 +135,18 @@ async getResStatuses(): Promise<ResStatus[]> {
   if (!response.ok) throw new Error("Failed to fetch res statuses")
   return await response.json()
 }
+async getFilteredREObjects(filters: FilterParams): Promise<REObject[]> {
+  // Создаем параметры URL
+  const params = new URLSearchParams();
+  
+  if (filters.typeId) params.append('typeId', filters.typeId.toString());
+  if (filters.dealTypeId) params.append('dealTypeId', filters.dealTypeId.toString());
+  if (filters.statusId) params.append('statusId', filters.statusId.toString());
 
+  const response = await fetch(`${this.baseUrl}/REObject/filter?${params.toString()}`);
+  if (!response.ok) throw new Error("Failed to fetch filtered objects");
+  return await response.json();
+}
 }
 
 export default new APIService("/api") // Экспортируем инстанс с базовым URL

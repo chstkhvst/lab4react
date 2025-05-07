@@ -2,8 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { REObjectContext } from "../context/REObjectContext";
 import { useAuth } from "../context/AuthContext";
+import { ReservationContext } from "../context/ReservationContext";
 import { REObject } from "../models/reobject";
-import APIService from "../services/APIService";
+import 'dayjs/locale/ru'; 
 import {
   Box,
   Typography,
@@ -29,12 +30,17 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 const REObjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const context = useContext(REObjectContext)!;
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, currentUser } = useAuth();
+  const rescontext = useContext(ReservationContext)!;
 
   const [reobject, setREObject] = useState<REObject | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -42,13 +48,18 @@ const REObjectDetails: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [checkInDate, setCheckInDate] = useState<Dayjs | null>(null);
+  const [checkOutDate, setCheckOutDate] = useState<Dayjs | null>(null);
 
   const fetchREObject = async () => {
     if (id) {
       try {
-        const fetchedObject = await APIService.getREObjectById(parseInt(id, 10));
+        const fetchedObject = await context.getREObjectById(parseInt(id, 10));
         setREObject(fetchedObject);
         setFormState(fetchedObject);
+        console.log('Получен обновлённый объект:', fetchedObject);
       } catch (error) {
         console.error("Failed to fetch object:", error);
         alert("Failed to load object details.");
@@ -73,10 +84,49 @@ const REObjectDetails: React.FC = () => {
       setFiles(Array.from(e.target.files));
     }
   };
-
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+  
+    if (!formState?.street?.trim() || !/^[А-Яа-яA-Za-z\s\-]+$/.test(formState?.street)) {
+      newErrors.street = "Введите корректное значение для улицы";
+    }
+    if (!formState?.building || formState.building <= 0 || formState.building > 200) {
+      newErrors.building = "Некорректное число для номера дома";
+    }
+    if (!formState?.rooms || formState.rooms <= 0 || formState.rooms > 50) {
+      newErrors.rooms = "Некорректное число для количества комнат";
+    }
+    if (!formState?.floors || formState.floors <= 0 || formState.floors > 3) {
+      newErrors.floors = "Некорректное число для количества этажей";
+    }
+    if (!formState?.square || formState.square <= 0 || formState.square > 3000) {
+      newErrors.square = "Некорректная площадь";
+    }
+    if (!formState?.price || formState.price <= 5000 || formState.price > 30000000) {
+      newErrors.price = "Некорректная цена";
+    }
+    if (!formState?.dealType?.id) {
+      newErrors.dealType = "Выберите тип сделки";
+    }
+    if (!formState?.objectType?.id) {
+      newErrors.objectType = "Выберите тип объекта";
+    }
+    if (!formState?.status?.id) {
+      newErrors.status = "Выберите статус";
+    }
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const isValid = validateForm();
+      if (!isValid) {
+      setIsSubmitting(false);
+      return;
+    } 
     
     if (formState && context) {
       try {
@@ -227,6 +277,102 @@ const REObjectDetails: React.FC = () => {
                 <Typography>{reobject.price.toLocaleString()} руб.</Typography>
               </Box>
             </Box>
+            {reobject.status.id === 1 &&( 
+            <Button 
+              variant="contained" 
+              color="secondary"
+              onClick={() => setBookingModalOpen(true)}
+              sx={{ mt: 2 }}
+            >
+              Забронировать
+            </Button>
+          )} 
+
+          {/* Модальное окно бронирования */}
+          {bookingModalOpen && (
+            <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
+              <Typography variant="h6" gutterBottom>Выберите даты бронирования</Typography>
+              
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+                <Stack spacing={2}>
+                  <DatePicker
+                    label="Дата заезда"
+                    value={checkInDate}
+                    onChange={(newValue) => setCheckInDate(newValue)}
+                    minDate={dayjs()}
+                    format="DD.MM.YYYY"
+                  />
+                  {reobject.dealType.id === 1 && (
+                  <DatePicker
+                    label="Дата выезда (если известна)"
+                    value={checkOutDate}
+                    onChange={(newValue) => setCheckOutDate(newValue)}
+                    minDate={checkInDate || dayjs()}
+                    disabled={!checkInDate}
+                    format="DD.MM.YYYY"
+                  />
+                )}
+                  <Stack direction="row" spacing={2}>
+                    <Button 
+                      variant="contained"
+                      disabled={!reobject || !reobject.id}
+                      onClick={async () => {
+                        if (!reobject || !reobject.id) {
+                          alert('Объект не загружен');
+                          return;
+                        }
+                        if (!checkInDate) {
+                          alert('Пожалуйста, выберите дату заезда');
+                          return;
+                        }
+
+                        try {
+                          await rescontext.addReservation({ 
+                            objectId: reobject.id,
+                            startDate: checkInDate.toDate(),
+                            endDate: checkOutDate?.toDate(),
+                            userId: currentUser?.id!,
+                            resStatusId: 1
+                          });
+
+                          setBookingModalOpen(false);
+                          setCheckInDate(null);
+                          setCheckOutDate(null);
+                          alert('Бронирование успешно создано!');
+
+                          try {
+                            // const updatedObject = await context.getREObjectById(reobject.id);
+                            // console.log('Получен обновлённый объект:', updatedObject);
+                            // setREObject(updatedObject);
+                            fetchREObject();
+                          } catch (fetchError) {
+                            console.error('Ошибка при получении объекта:', fetchError);
+                            alert('Не удалось обновить информацию об объекте');
+                          }
+                        } catch (error) {
+                          console.error('Ошибка при бронировании:', error);
+                          alert('Произошла ошибка при бронировании');
+                        }
+                      }}
+                    >
+                      Подтвердить бронирование
+                    </Button>
+                    
+                    <Button 
+                      variant="outlined" 
+                      onClick={() => {
+                        setBookingModalOpen(false);
+                        setCheckInDate(null);
+                        setCheckOutDate(null);
+                      }}
+                    >
+                      Отмена
+                    </Button>
+                  </Stack>
+                </Stack>
+              </LocalizationProvider>
+            </Paper>
+          )}
 
             <Stack direction="row" spacing={2} mt={4}>
               {isAdmin && (
@@ -257,16 +403,20 @@ const REObjectDetails: React.FC = () => {
                   label="Улица"
                   required
                   fullWidth
+                  error={!!errors.street}
+                  helperText={errors.street}
                   value={formState?.street || ""}
                   onChange={(e) => setFormState({ ...formState!, street: e.target.value })}
                 />
                 <TextField
                   label="Дом"
-                  required
                   type="number"
+                  required
                   fullWidth
+                  error={!!errors.building}
+                  helperText={errors.building}
                   value={formState?.building || ""}
-                  onChange={(e) => setFormState({ ...formState!, building: Number(e.target.value) })}
+                  onChange={(e) => setFormState({ ...formState!, building: parseInt(e.target.value) || 0 })}
                 />
                 <TextField
                   label="Квартира"
@@ -285,35 +435,43 @@ const REObjectDetails: React.FC = () => {
               <Stack direction="row" spacing={2}>
                 <TextField
                   label="Комнат"
-                  required
                   type="number"
+                  required
                   fullWidth
+                  error={!!errors.rooms}
+                  helperText={errors.rooms}
                   value={formState?.rooms || ""}
-                  onChange={(e) => setFormState({ ...formState!, rooms: Number(e.target.value) })}
+                  onChange={(e) => setFormState({ ...formState!, rooms: parseInt(e.target.value) || 0 })}
                 />
                 <TextField
                   label="Этажей"
-                  required
                   type="number"
+                  required
                   fullWidth
+                  error={!!errors.floors}
+                  helperText={errors.floors}
                   value={formState?.floors || ""}
-                  onChange={(e) => setFormState({ ...formState!, floors: Number(e.target.value) })}
+                  onChange={(e) => setFormState({ ...formState!, floors: parseInt(e.target.value) || 0 })}
                 />
                 <TextField
-                  label="Площадь"
-                  required
+                  label="Площадь (м²)"
                   type="number"
+                  required
                   fullWidth
+                  error={!!errors.square}
+                  helperText={errors.square}
                   value={formState?.square || ""}
-                  onChange={(e) => setFormState({ ...formState!, square: Number(e.target.value) })}
+                  onChange={(e) => setFormState({ ...formState!, square: parseFloat(e.target.value) || 0 })}
                 />
                 <TextField
                   label="Цена"
-                  required
                   type="number"
+                  required
                   fullWidth
+                  error={!!errors.price}
+                  helperText={errors.price}
                   value={formState?.price || ""}
-                  onChange={(e) => setFormState({ ...formState!, price: Number(e.target.value) })}
+                  onChange={(e) => setFormState({ ...formState!, price: parseFloat(e.target.value) || 0 })}
                 />
               </Stack>
               <FormControl fullWidth>

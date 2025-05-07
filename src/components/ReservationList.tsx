@@ -130,7 +130,9 @@ const ReservationList: React.FC = () => {
 
               <Box mb={2}>
                 <Typography variant="body1">
-                  <strong>Период брони:</strong> {formatDate(reservation.startDate)} - {formatDate(reservation.endDate)}
+                  <strong>Указанные даты бронирования: </strong> 
+                  {formatDate( reservation.startDate)}
+                  {reservation.endDate && ` — ${formatDate(reservation.endDate)}`}
                 </Typography>
               </Box>
 

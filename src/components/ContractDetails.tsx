@@ -212,7 +212,7 @@ const ContractDetails: React.FC = () => {
             </Box>
             </Box>
           <Typography variant="body1" paragraph className="location-date">
-            г. Москва, {formattedDate}
+            г. Иваново, {formattedDate}
           </Typography>
         </Paper>
       </Box>

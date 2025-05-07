@@ -13,6 +13,12 @@ interface REObjectContextProps {
   addREObject: (reobject: Omit<REObject, "id">, files?: File[]) => Promise<void>;
   deleteREObject: (id: number) => void
   updateREObject: (id: number, reobject: Omit<REObject, "id">, files?: File[], imagesToDelete?: number[]) => Promise<REObject>
+  fetchFilteredObjects: (filters: {
+    objectTypeId?: number;
+    dealTypeId?: number;
+    statusId?: number;
+  }) => Promise<void>;
+  getREObjectById: (id: number) => Promise<REObject>;
 }
 
 // Создание контекста
@@ -67,6 +73,7 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
     await APIService.deleteREObject(id)
     setREObjects(reobjects.filter((obj) => obj.id !== id))
   }
+
   const updateREObject = async (
     id: number, 
     updatedREObject: Omit<REObject, "id">, 
@@ -83,6 +90,40 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
     setREObjects(updatedList);
     return response;
   }
+
+  const fetchFilteredObjects = async (filters: {
+    objectTypeId?: number;
+    dealTypeId?: number;
+    statusId?: number;
+  }): Promise<void> => {
+    try {
+      const filteredObjects = await APIService.getFilteredREObjects({
+        typeId: filters.objectTypeId,
+        dealTypeId: filters.dealTypeId,
+        statusId: filters.statusId
+      });
+      setREObjects(filteredObjects || []);
+    } catch (error) {
+      console.error("Ошибка фильтрации объектов:", error);
+      throw error;
+    }
+  }
+  const getREObjectById = async (id: number): Promise<REObject> => {
+    try {
+      // запрашиваем с сервера
+      const object = await APIService.getREObjectById(id);
+      
+      // Обновляем локальное состояние
+      if (!reobjects.some(obj => obj.id === object.id)) {
+        setREObjects(prev => [...prev, object]);
+      }
+      
+      return object;
+    } catch (error) {
+      console.error("Ошибка загрузки объекта:", error);
+      throw error;
+    }
+  };
   return (
     <REObjectContext.Provider
       value={{
@@ -94,9 +135,11 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
         addREObject,
         deleteREObject,
         updateREObject,
+        fetchFilteredObjects,
+        getREObjectById
       }}
     >
       {children}
     </REObjectContext.Provider>
-  )
+  );
 }

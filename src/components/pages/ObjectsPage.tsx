@@ -15,7 +15,18 @@ const ObjectPage: React.FC = () => {
     return <Typography>Контекст не найден</Typography>;
   }
 
-  const { reobjects, deleteREObject } = context;
+  const { reobjects, deleteREObject, fetchFilteredObjects } = context;
+  const handleFilterChange = async (filters: {
+    objectTypeId?: number;
+    dealTypeId?: number;
+    statusId?: number;
+  }) => {
+    await fetchFilteredObjects(filters);
+  };
+
+  const handleResetFilters = async () => {
+    await fetchFilteredObjects({}); // Пустые фильтры = сброс
+  };
 
   return (
     <Box sx={{
@@ -46,6 +57,10 @@ const ObjectPage: React.FC = () => {
           <REObjectList 
             objects={reobjects} 
             onDelete={deleteREObject} 
+            objectTypes={context.objectTypes}
+            dealTypes={context.dealTypes}
+            statuses={context.statuses}
+            onFilterChange={handleFilterChange}
           />
           
         </Box>

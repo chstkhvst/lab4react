@@ -65,7 +65,7 @@ const Home: React.FC = () => {
                   navigate('/objects-for-users')
                 if (user && isAdmin)
                   navigate('/objects')
-                else
+                if (!user)
                   alert("Войдите в систему или зарегистрируйтесь!")
               }}
               sx={{
