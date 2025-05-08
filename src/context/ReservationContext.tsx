@@ -7,9 +7,10 @@ interface ReservationContextProps {
   resStatuses: ResStatus[]
   
   addReservation: (reservation: Omit<Reservation, "id">) => void
-  deleteReservation: (id: number) => void
+  //deleteReservation: (id: number) => void
   updateReservation: (id: number, reservation: Omit<Reservation, "id">) => Promise<Reservation>
-  refreshReservations: () => void
+ refreshReservations: (phoneNumber?: string) => void
+
 }
 
 export const ReservationContext = createContext<ReservationContextProps | undefined>(undefined)
@@ -23,14 +24,22 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
     fetchResStatuses()
   }, [])
 
-  const fetchReservations = async () => {
+  // const fetchReservations = async () => {
+  //   try {
+  //     const data = await ReservationService.getReservations()
+  //     setReservations(data || [])
+  //   } catch (error) {
+  //     console.error("Ошибка загрузки бронирований:", error)
+  //   }
+  // }
+  const fetchReservations = async (phoneNumber?: string) => {
     try {
-      const data = await ReservationService.getReservations()
-      setReservations(data || [])
+      const data = await ReservationService.getReservations(phoneNumber);
+      setReservations(data || []);
     } catch (error) {
-      console.error("Ошибка загрузки бронирований:", error)
+      console.error("Ошибка загрузки бронирований:", error);
     }
-  }
+  };
 
   const fetchResStatuses = async () => {
     try {
@@ -47,10 +56,10 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
     setReservations(updatedList)
   }
 
-  const deleteReservation = async (id: number) => {
-    await ReservationService.deleteReservation(id)
-    setReservations(reservations.filter(r => r.id !== id))
-  }
+  // const deleteReservation = async (id: number) => {
+  //   await ReservationService.deleteReservation(id)
+  //   setReservations(reservations.filter(r => r.id !== id))
+  // }
 
   const updateReservation = async (id: number, updatedReservation: Omit<Reservation, "id">): Promise<Reservation> => {
     const response = await ReservationService.updateReservation(id, updatedReservation)
@@ -65,7 +74,7 @@ export const ReservationProvider: React.FC<{ children: ReactNode }> = ({ childre
         reservations,
         resStatuses,
         addReservation,
-        deleteReservation,
+        
         updateReservation,
         refreshReservations: fetchReservations
       }}

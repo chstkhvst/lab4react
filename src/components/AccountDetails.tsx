@@ -189,7 +189,7 @@ const AccountDetails: React.FC = () => {
       await fetchCurrentUser();
     };
     
-    if (!currentUser) {
+    if (!currentUser || !editMode) {
       loadUser();
     } else {
       console.log(currentUser.reservations);
@@ -200,7 +200,7 @@ const AccountDetails: React.FC = () => {
       });
     }
   }, [currentUser, fetchCurrentUser]);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -269,7 +269,7 @@ const AccountDetails: React.FC = () => {
       {!editMode ? (
         <Box>
           <Typography><strong>ФИО:</strong> {currentUser.fullName || "Не указано"}</Typography>
-          <Typography><strong>Телефон:</strong> {currentUser.phoneNumber || "Не указан"}</Typography>
+          <Typography><strong>Номер телефона:</strong> {currentUser.phoneNumber || "Не указан"}</Typography>
 
           {/* Список бронирований */}
           {currentUser.reservations && currentUser.reservations.length > 0 && (
@@ -340,7 +340,7 @@ const AccountDetails: React.FC = () => {
               onChange={(e) => setFormState({ ...formState, fullName: e.target.value })}
             />
             <TextField
-              label="Телефон"
+              label="Номер телефона"
               value={formState.phoneNumber}
               onChange={(e) => setFormState({ ...formState, phoneNumber: e.target.value })}
             />

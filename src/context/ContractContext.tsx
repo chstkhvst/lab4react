@@ -6,6 +6,7 @@ interface ContractContextProps {
   contracts: Contract[] // Массив всех договоров
   addContract: (contract: Omit<Contract, "id" | "object" | "user" | "reservation">) => void // Добавление нового договора
   getContractById: (id: number) => Promise<Contract> // Получение договора по ID
+  fetchContracts: (signDate?: Date) => void
 }
 
 // Создание контекста
@@ -20,16 +21,23 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [])
 
   // Получение всех договоров
-  const fetchContracts = async () => {
-    try {
-      const data = await ContractService.getContracts()
+  // const fetchContracts = async () => {
+  //   try {
+  //     const data = await ContractService.getContracts()
 
+  //     setContracts(data || [])
+  //   } catch (error) {
+  //     console.error("Ошибка загрузки договоров:", error)
+  //   }
+  // }
+  const fetchContracts = async (signDate?: Date) => {
+    try {
+      const data = await ContractService.getContracts(signDate)
       setContracts(data || [])
     } catch (error) {
       console.error("Ошибка загрузки договоров:", error)
     }
   }
-
   // Добавление нового договора
   const addContract = async (contract: Omit<Contract, "id" | "object" | "user" | "reservation">) => {
     await ContractService.createContract(contract)
@@ -48,6 +56,7 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
         contracts,
         addContract,
         getContractById,
+        fetchContracts
       }}
     >
       {children}

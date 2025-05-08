@@ -20,11 +20,38 @@ class ContractService {
    * @returns {Promise<Contract[]>} Промис с массивом договоров
    * @throws {Error} Если не удалось загрузить договоры
    */
-  async getContracts(): Promise<Contract[]> {
-    const response = await fetch(`${this.baseUrl}/Contract`)
-    if (!response.ok) throw new Error("Failed to fetch contracts")
-    return await response.json()
+  async getContracts(signDate?: Date): Promise<Contract[]> {
+    try {
+      let url = `${this.baseUrl}/Contract`;
+      
+      if (signDate) {
+        // Форматируем дату в ISO строку (без времени)
+        const dateStr = signDate.toISOString().split('T')[0];
+        url += `?signDate=${encodeURIComponent(dateStr)}`;
+        console.log('Fetching contracts with sign date:', dateStr);
+      } else {
+        console.log('Fetching all contracts (no date filter)');
+      }
+
+      console.log('Request URL:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.error(`Fetch failed. Status: ${response.status}`);
+        throw new Error(`Failed to fetch contracts. Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Fetched contracts:', data);
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching contracts:', error);
+      throw error;
+    }
   }
+
 
   /**
    * Создает новый договор

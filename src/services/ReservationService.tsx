@@ -20,11 +20,41 @@ class ReservationService {
    * @returns {Promise<Reservation[]>} Промис с массивом бронирований
    * @throws {Error} Если не удалось загрузить бронирования
    */
-  async getReservations(): Promise<Reservation[]> {
-    const response = await fetch(`${this.baseUrl}/Reservation`);
-    if (!response.ok) throw new Error("Failed to fetch reservations");
-    return await response.json();
+  // async getReservations(): Promise<Reservation[]> {
+  //   const response = await fetch(`${this.baseUrl}/Reservation`);
+  //   if (!response.ok) throw new Error("Failed to fetch reservations");
+  //   return await response.json();
+  // }
+  async getReservations(phoneNumber?: string): Promise<Reservation[]> {
+    try {
+      let url = `${this.baseUrl}/Reservation`;
+  
+      if (phoneNumber) {
+        url += `?phoneNumber=${encodeURIComponent(phoneNumber)}`;
+        console.log('Fetching reservations with phone number:', phoneNumber);
+      } else {
+        console.log('Fetching all reservations (no phone number specified)');
+      }
+  
+      console.log('Request URL:', url);
+  
+      const response = await fetch(url);
+  
+      if (!response.ok) {
+        console.error(`Fetch failed. Status: ${response.status}`);
+        throw new Error(`Failed to fetch reservations. Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log('Fetched reservations:', data);
+  
+      return data;
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+      throw error;
+    }
   }
+  
 
   /**
    * Получает бронирование по его ID
