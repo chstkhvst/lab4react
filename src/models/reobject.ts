@@ -46,3 +46,10 @@ export interface REObject {
     };
     objectImages?: ObjectImages[];
   }
+  export interface PaginatedResponse<T> {
+    items: T[];
+    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+  }
+

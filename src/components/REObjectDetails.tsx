@@ -209,7 +209,8 @@ const REObjectDetails: React.FC = () => {
                   spaceBetween={20}
                   slidesPerView={1}
                   style={{ 
-                    height: '100%'
+                    height: '100%',
+                    width: "90%",
                   }}
                 >
                   {reobject.objectImages!.map((image) => (
@@ -220,7 +221,7 @@ const REObjectDetails: React.FC = () => {
                         style={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover'
+                          objectFit: 'cover',
                         }}
                       />
                     </SwiperSlide>
@@ -277,7 +278,7 @@ const REObjectDetails: React.FC = () => {
                 <Typography>{reobject.price.toLocaleString()} руб.</Typography>
               </Box>
             </Box>
-            {reobject.status.id === 1 &&( 
+            {reobject?.status?.id === 1 &&( 
             <Button 
               variant="contained" 
               color="secondary"

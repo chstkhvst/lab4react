@@ -1,27 +1,49 @@
 import { Reservation, ResStatus } from "../models/reservation";
 
+/**
+ * Сервис для работы с бронированиями
+ */
 class ReservationService {
+  /** Базовый URL API */
   private baseUrl: string;
 
+  /**
+   * Создает экземпляр ReservationService
+   * @param {string} baseUrl - Базовый URL API
+   */
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  // Получение списка всех бронирований
+  /**
+   * Получает список всех бронирований
+   * @returns {Promise<Reservation[]>} Промис с массивом бронирований
+   * @throws {Error} Если не удалось загрузить бронирования
+   */
   async getReservations(): Promise<Reservation[]> {
     const response = await fetch(`${this.baseUrl}/Reservation`);
     if (!response.ok) throw new Error("Failed to fetch reservations");
     return await response.json();
   }
 
-  // Получение бронирования по ID
+  /**
+   * Получает бронирование по его ID
+   * @param {number} id - ID бронирования
+   * @returns {Promise<Reservation>} Промис с запрошенным бронированием
+   * @throws {Error} Если не удалось загрузить бронирование
+   */
   async getReservationById(id: number): Promise<Reservation> {
     const response = await fetch(`${this.baseUrl}/Reservation/${id}`);
     if (!response.ok) throw new Error("Failed to fetch reservation");
     return await response.json();
   }
 
-  // Создание нового бронирования
+  /**
+   * Создает новое бронирование
+   * @param {Omit<Reservation, "id">} reservation - Данные бронирования (без ID)
+   * @returns {Promise<Reservation>} Промис с созданным бронированием
+   * @throws {Error} Если не удалось создать бронирование
+   */
   async createReservation(reservation: Omit<Reservation, "id">): Promise<Reservation> {
     const response = await fetch(`${this.baseUrl}/Reservation`, {
       method: "POST",
@@ -32,7 +54,13 @@ class ReservationService {
     return await response.json();
   }
 
-  // Обновление бронирования
+  /**
+   * Обновляет существующее бронирование
+   * @param {number} id - ID бронирования для обновления
+   * @param {Omit<Reservation, "id">} reservation - Новые данные бронирования
+   * @returns {Promise<Reservation>} Промис с обновленным бронированием
+   * @throws {Error} Если не удалось обновить бронирование
+   */
   async updateReservation(id: number, reservation: Omit<Reservation, "id">): Promise<Reservation> {
     const reservationWithId = { ...reservation, id };
     console.log(reservationWithId)
@@ -45,7 +73,12 @@ class ReservationService {
     return await response.json();
   }
 
-  // Удаление бронирования
+  /**
+   * Удаляет бронирование
+   * @param {number} id - ID бронирования для удаления
+   * @returns {Promise<void>}
+   * @throws {Error} Если не удалось удалить бронирование
+   */
   async deleteReservation(id: number): Promise<void> {
     const response = await fetch(`${this.baseUrl}/Reservation/${id}`, {
       method: "DELETE",
@@ -53,13 +86,17 @@ class ReservationService {
     if (!response.ok) throw new Error("Failed to delete reservation");
   }
 
-  // Получение списка статусов бронирования
+  /**
+   * Получает список возможных статусов бронирования
+   * @returns {Promise<ResStatus[]>} Промис с массивом статусов бронирования
+   * @throws {Error} Если не удалось загрузить статусы бронирования
+   */
   async getResStatuses(): Promise<ResStatus[]> {
     const response = await fetch(`${this.baseUrl}/catalog/resstatuses`);
     if (!response.ok) throw new Error("Failed to fetch reservation statuses");
     return await response.json();
   }
-
 }
 
-export default new ReservationService("/api"); // Экспортируем инстанс с базовым URL
+/** Экспортированный экземпляр ReservationService с базовым URL '/api' */
+export default new ReservationService("/api");

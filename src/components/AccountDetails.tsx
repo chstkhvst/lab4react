@@ -173,17 +173,34 @@ const AccountDetails: React.FC = () => {
     phoneNumber: "",
   });
 
+  // useEffect(() => {
+  //   fetchCurrentUser();
+  //   if (currentUser) {
+  //     console.log(currentUser.reservations)
+  //     setFormState({
+  //       userName: currentUser.userName || "",
+  //       fullName: currentUser.fullName || "",
+  //       phoneNumber: currentUser.phoneNumber || "",
+  //     });
+  //   }
+  // }, [currentUser]);
   useEffect(() => {
-    if (currentUser) {
-      console.log(currentUser.reservations)
+    const loadUser = async () => {
+      await fetchCurrentUser();
+    };
+    
+    if (!currentUser) {
+      loadUser();
+    } else {
+      console.log(currentUser.reservations);
       setFormState({
         userName: currentUser.userName || "",
         fullName: currentUser.fullName || "",
         phoneNumber: currentUser.phoneNumber || "",
       });
     }
-  }, [currentUser]);
-
+  }, [currentUser, fetchCurrentUser]);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -207,7 +224,7 @@ const AccountDetails: React.FC = () => {
     console.log(reservation)
     console.log(reservation.objectId)
     try {
-      // Создаем УПРОЩЕННЫЙ объект для отправки
+      // Создаем  объект для отправки
       const updateData = {
         objectId: reservation.objectId,
         userId: reservation.userId,
@@ -270,8 +287,10 @@ const AccountDetails: React.FC = () => {
                     <Typography>
                       <strong>Статус:</strong> {res.resStatus?.statusType}
                     </Typography>
-                    <Typography>
-                      <strong>Даты:</strong> {new Date(res.startDate || "").toLocaleDateString()} - {new Date(res.endDate || "").toLocaleDateString()}
+                    <Typography >
+                      <strong>Даты: </strong>
+                      {new Date(res.startDate || "").toLocaleDateString()}
+                      {res.endDate && ` - ${new Date(res.endDate).toLocaleDateString()}`}
                     </Typography>
 
                     {res.resStatus?.id === 1 && (

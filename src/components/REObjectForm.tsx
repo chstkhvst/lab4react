@@ -99,6 +99,9 @@ const REObjectForm: React.FC = () => {
     if (formData.price && (num(formData.price) < 5000 || num(formData.price) > 30000000)) {
       newErrors["price"] = "Введите реальную стоимость";
     }
+    if (formData.price && num(formData.dealtypeid) == 2 && (num(formData.price) < 300000 || num(formData.price) > 30000000)) {
+      newErrors["price"] = "Введите реальную стоимость";
+    }
   
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

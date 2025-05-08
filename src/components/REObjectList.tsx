@@ -29,22 +29,23 @@ interface Props {
   dealTypes: Array<{ id: number; dealName: string }>;
   statuses?: Array<{ id: number; statusName: string }>;
   onFilterChange?: (filters: { objectTypeId?: number; dealTypeId?: number; statusId?: number }) => void;
-}
 
-// const REObjectList: React.FC<Props> = ({ objects, onDelete }) => {
-//   const navigate = useNavigate();
-//   const [filters, setFilters] = useState({
-//     objectTypeId: undefined as number | undefined,
-//     dealTypeId: undefined as number | undefined,
-//     statusId: undefined as number | undefined,
-//   });
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  pageSize: number;
+}
 const REObjectList: React.FC<Props> = ({ 
   objects, 
   onDelete,
   objectTypes = [],
   dealTypes = [],
   statuses = [],
-  onFilterChange = () => {}
+  onFilterChange = () => {},
+  currentPage,
+  totalPages,
+  onPageChange,
+  pageSize
 }) => {
   const navigate = useNavigate();
   const {isAdmin} = useAuth();
@@ -141,7 +142,7 @@ const REObjectList: React.FC<Props> = ({
     </Paper>
 
       <Stack spacing={3} sx={{ maxWidth: 1200, mx: 'auto' }}>
-        {objects.map((reobject) => (
+        {objects.map((reobject?) => (
           <Paper
             key={reobject.id}
             elevation={3}
@@ -258,6 +259,19 @@ const REObjectList: React.FC<Props> = ({
           </Paper>
         ))}
       </Stack>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Stack direction="row" spacing={1}>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={page === currentPage ? "contained" : "outlined"}
+              onClick={() => onPageChange(page)}
+            >
+              {page}
+            </Button>
+          ))}
+        </Stack>
+    </Box>
     </Box>
   );
 };
