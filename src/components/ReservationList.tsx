@@ -10,7 +10,8 @@ import {
   IconButton,
   Divider,
   InputAdornment,
-  TextField
+  TextField,
+  useTheme
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -19,10 +20,10 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { ReservationContext } from "../context/ReservationContext";
 import { ContractContext } from "../context/ContractContext";
 import { AuthContext } from "../context/AuthContext";
-
 import { Reservation, ResStatus } from "../models/reservation";
 
 const ReservationList: React.FC = () => {
+  const theme = useTheme();
   const { 
     reservations, 
     resStatuses, 
@@ -73,7 +74,7 @@ const ReservationList: React.FC = () => {
       };
 
       await addContract(contract);
-      await fetchReservations(searchPhone); // Обновляем с текущим фильтром
+      await fetchReservations(searchPhone);
     } catch (error) {
       console.error("Ошибка при создании договора:", error);
     }
@@ -106,7 +107,10 @@ const ReservationList: React.FC = () => {
           sx={{ 
             mt: 3,
             fontWeight: 600,
-            color: 'primary.main'
+            color: 'primary.main',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
           }}
         >
           Список бронирований
@@ -118,16 +122,20 @@ const ReservationList: React.FC = () => {
           placeholder="Поиск по номеру телефона"
           value={searchPhone}
           onChange={(e) => handleSearch(e.target.value)}
-          sx={{ mb: 3 }}
+          sx={{ mb: 3, backgroundColor: 'background.paper' }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon />
+                <SearchIcon color="action" />
               </InputAdornment>
             ),
             endAdornment: searchPhone && (
               <InputAdornment position="end">
-                <IconButton onClick={handleClearSearch} size="small">
+                <IconButton 
+                  onClick={handleClearSearch} 
+                  size="small"
+                  edge="end"
+                >
                   <ClearIcon fontSize="small" />
                 </IconButton>
               </InputAdornment>
@@ -138,7 +146,13 @@ const ReservationList: React.FC = () => {
 
       <Stack spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
         {reservations.length === 0 ? (
-          <Paper sx={{ p: 3, textAlign: 'center' }}>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              textAlign: 'center',
+              backgroundColor: 'background.paper'
+            }}
+          >
             <Typography variant="h6">
               {searchPhone 
                 ? `Бронирования для телефона "${searchPhone}" не найдены`
@@ -158,7 +172,13 @@ const ReservationList: React.FC = () => {
                 sx={{ 
                   p: 3, 
                   borderRadius: 2,
-                  backgroundColor: 'rgba(255, 255, 255, 0.85)'
+                  backgroundColor: 'background.paper',
+                  borderLeft: `4px solid ${
+                    statusId === 1 ? theme.palette.primary.main :
+                    statusId === 2 ? theme.palette.success.main :
+                    statusId === 3 ? theme.palette.error.main : 
+                    theme.palette.grey[500]
+                  }`
                 }}
               >
                 <Typography 
@@ -178,7 +198,7 @@ const ReservationList: React.FC = () => {
                     statusId === 3 ? "error" : "default"
                   }
                   size="medium"
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, fontWeight: 500 }}
                 />
 
                 <Box mb={2}>
@@ -215,6 +235,7 @@ const ReservationList: React.FC = () => {
                         variant="contained"
                         startIcon={<DescriptionIcon />}
                         onClick={() => handleCreateContract(reservation)}
+                        sx={{ minWidth: 120 }}
                       >
                         Договор
                       </Button>
@@ -223,6 +244,7 @@ const ReservationList: React.FC = () => {
                         color="error"
                         startIcon={<CancelIcon />}
                         onClick={() => handleReject(reservation)}
+                        sx={{ minWidth: 120 }}
                       >
                         Отменить
                       </Button>
@@ -230,13 +252,13 @@ const ReservationList: React.FC = () => {
                   )}
 
                   {statusId === 2 && (
-                    <Typography variant="body1" color="success.main">
+                    <Typography variant="body1" color="success.main" sx={{ fontWeight: 500 }}>
                       Договор заключен
                     </Typography>
                   )}
 
                   {statusId === 3 && (
-                    <Typography variant="body1" color="error.main">
+                    <Typography variant="body1" color="error.main" sx={{ fontWeight: 500 }}>
                       Бронь отменена
                     </Typography>
                   )}

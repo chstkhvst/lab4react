@@ -19,12 +19,27 @@ import {
   Chip,
   Paper,
   FormLabel,
-  Icon
+  Icon,
+  Card,
+  CardContent,
+  CardMedia,
+  Avatar,
+  Rating,
+  useTheme,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import HomeIcon from '@mui/icons-material/Home';
 import CancelIcon from '@mui/icons-material/Cancel';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import SquareFootIcon from '@mui/icons-material/SquareFoot';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -41,6 +56,7 @@ const REObjectDetails: React.FC = () => {
   const navigate = useNavigate();
   const { isAdmin, currentUser } = useAuth();
   const rescontext = useContext(ReservationContext)!;
+  const theme = useTheme();
 
   const [reobject, setREObject] = useState<REObject | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -186,215 +202,294 @@ const REObjectDetails: React.FC = () => {
           mt: 3,
           mb: 4,
           fontWeight: 600,
-          color: 'primary.main'
+          color: 'primary.main',
+          textAlign: 'center',
+          textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
         }}
       >
         {editMode ? "Редактирование объекта" : "Детали объекта недвижимости"}
       </Typography>
 
       {!editMode ? (
-        <Paper elevation={3} sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.85)' }}>
-          <Stack spacing={2}>
-            {reobject.objectImages && reobject.objectImages.length > 0 && (
-              <Box sx={{ 
-                height: 500,
-                mb: 3,
-                borderRadius: 2,
-                overflow: 'hidden'
+        <Card sx={{ 
+          maxWidth: 1200, 
+          mx: 'auto', 
+          boxShadow: 3,
+          borderRadius: 4,
+          overflow: 'hidden'
+        }}>
+          {reobject.objectImages && reobject.objectImages.length > 0 && (
+            <Box sx={{ 
+              height: 500,
+              position: 'relative'
+            }}>
+              <Swiper
+                modules={[Navigation, Pagination]}
+                navigation
+                pagination={{ clickable: true }}
+                spaceBetween={20}
+                slidesPerView={1}
+                style={{ 
+                  height: '100%',
+                }}
+              >
+                {reobject.objectImages!.map((image) => (
+                  <SwiperSlide key={image.id}>
+                    <CardMedia
+                      component="img"
+                      image={"https://localhost:7020/"+image.imagePath}
+                      alt={`Объект ${reobject.id}`}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <Box sx={{
+                position: 'absolute',
+                bottom: 16,
+                right: 16,
+                zIndex: 2,
+                display: 'flex',
+                gap: 1
               }}>
-                <Swiper
-                  modules={[Navigation, Pagination]}
-                  navigation
-                  pagination={{ clickable: true }}
-                  spaceBetween={20}
-                  slidesPerView={1}
-                  style={{ 
-                    height: '100%',
-                    width: "90%",
-                  }}
-                >
-                  {reobject.objectImages!.map((image) => (
-                    <SwiperSlide key={image.id}>
-                      <img 
-                        src={"https://localhost:7020/"+image.imagePath} 
-                        alt={`Объект ${reobject.id}`}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </Box>
-            )}
-
-            <Typography variant="h6">
-              <strong>Адрес:</strong>{" "}
-              {`${reobject.street}, д. ${reobject.building}${reobject.roomnum != null ? `, кв. ${reobject.roomnum}` : ""}`}
-            </Typography>
-
-            <Box display="flex" flexWrap="wrap" gap={2}>
-              {reobject.objectType?.typeName && (
-                <Chip 
-                  label={`Тип: ${reobject.objectType.typeName}`} 
-                  color="primary" 
-                  variant="outlined"
-                />
-              )}
-              {reobject.dealType?.dealName && (
-                <Chip 
-                  label={`Сделка: ${reobject.dealType.dealName}`} 
-                  color="secondary" 
-                  variant="outlined"
-                />
-              )}
-              {reobject.status?.statusName && (
-                <Chip 
-                  label={`Статус: ${reobject.status.statusName}`} 
-                  variant="outlined"
-                />
-              )}
-            </Box>
-
-            <Divider />
-
-            <Box display="flex" flexWrap="wrap" gap={4}>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">Площадь</Typography>
-                <Typography>{reobject.square} м²</Typography>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">Этажей</Typography>
-                <Typography>{reobject.floors}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">Комнат</Typography>
-                <Typography>{reobject.rooms}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">Цена</Typography>
-                <Typography>{reobject.price.toLocaleString()} руб.</Typography>
-              </Box>
-            </Box>
-            {reobject?.status?.id === 1 &&( 
-            <Button 
-              variant="contained" 
-              color="secondary"
-              onClick={() => setBookingModalOpen(true)}
-              sx={{ mt: 2 }}
-            >
-              Забронировать
-            </Button>
-          )} 
-
-          {/* Модальное окно бронирования */}
-          {bookingModalOpen && (
-            <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
-              <Typography variant="h6" gutterBottom>Выберите даты бронирования</Typography>
-              
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-                <Stack spacing={2}>
-                  <DatePicker
-                    label="Дата заезда"
-                    value={checkInDate}
-                    onChange={(newValue) => setCheckInDate(newValue)}
-                    minDate={dayjs()}
-                    format="DD.MM.YYYY"
-                  />
-                  {reobject.dealType.id === 1 && (
-                  <DatePicker
-                    label="Дата выезда (если известна)"
-                    value={checkOutDate}
-                    onChange={(newValue) => setCheckOutDate(newValue)}
-                    minDate={checkInDate || dayjs()}
-                    disabled={!checkInDate}
-                    format="DD.MM.YYYY"
+                {reobject.objectType?.typeName && (
+                  <Chip 
+                    label={reobject.objectType.typeName} 
+                    color="primary" 
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: 'white',
+                      fontWeight: 'bold'
+                    }}
                   />
                 )}
-                  <Stack direction="row" spacing={2}>
-                    <Button 
-                      variant="contained"
-                      disabled={!reobject || !reobject.id}
-                      onClick={async () => {
-                        if (!reobject || !reobject.id) {
-                          alert('Объект не загружен');
-                          return;
-                        }
-                        if (!checkInDate) {
-                          alert('Пожалуйста, выберите дату заезда');
-                          return;
-                        }
-
-                        try {
-                          await rescontext.addReservation({ 
-                            objectId: reobject.id,
-                            startDate: checkInDate.toDate(),
-                            endDate: checkOutDate?.toDate(),
-                            userId: currentUser?.id!,
-                            resStatusId: 1
-                          });
-
-                          setBookingModalOpen(false);
-                          setCheckInDate(null);
-                          setCheckOutDate(null);
-                          alert('Бронирование успешно создано!');
-
-                          try {
-                            // const updatedObject = await context.getREObjectById(reobject.id);
-                            // console.log('Получен обновлённый объект:', updatedObject);
-                            // setREObject(updatedObject);
-                            fetchREObject();
-                          } catch (fetchError) {
-                            console.error('Ошибка при получении объекта:', fetchError);
-                            alert('Не удалось обновить информацию об объекте');
-                          }
-                        } catch (error) {
-                          console.error('Ошибка при бронировании:', error);
-                          alert('Произошла ошибка при бронировании');
-                        }
-                      }}
-                    >
-                      Подтвердить бронирование
-                    </Button>
-                    
-                    <Button 
-                      variant="outlined" 
-                      onClick={() => {
-                        setBookingModalOpen(false);
-                        setCheckInDate(null);
-                        setCheckOutDate(null);
-                      }}
-                    >
-                      Отмена
-                    </Button>
-                  </Stack>
-                </Stack>
-              </LocalizationProvider>
-            </Paper>
+                {reobject.dealType?.dealName && (
+                  <Chip 
+                    label={reobject.dealType.dealName} 
+                    color="secondary" 
+                    sx={{
+                      backgroundColor: theme.palette.secondary.main,
+                      color: 'white',
+                      fontWeight: 'bold'
+                    }}
+                  />
+                )}
+              </Box>
+            </Box>
           )}
 
-            <Stack direction="row" spacing={2} mt={4}>
-              {isAdmin && (
+          <CardContent sx={{ p: 4 }}>
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="h5" component="div" sx={{ 
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <LocationOnIcon color="primary" />
+                  {`${reobject.street}, д. ${reobject.building}${reobject.roomnum != null ? `, кв. ${reobject.roomnum}` : ""}`}
+                </Typography>
+                
+                {reobject.status?.statusName && (
+                  <Chip 
+                    label={`Статус: ${reobject.status.statusName}`} 
+                    variant="outlined"
+                    sx={{ 
+                      mt: 1,
+                      borderColor: reobject.status.id === 1 ? theme.palette.success.main : 
+                                  reobject.status.id === 2 ? theme.palette.warning.main : 
+                                  theme.palette.error.main,
+                      color: reobject.status.id === 1 ? theme.palette.success.main : 
+                            reobject.status.id === 2 ? theme.palette.warning.main : 
+                            theme.palette.error.main
+                    }}
+                  />
+                )}
+              </Box>
+
+              <Divider />
+
+              <Accordion defaultExpanded sx={{ boxShadow: 'none' }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Характеристики</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Box display="flex" flexWrap="wrap" gap={4} sx={{ mt: 2 }}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Avatar sx={{ bgcolor: theme.palette.primary.light }}>
+                        <SquareFootIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Площадь</Typography>
+                        <Typography fontWeight="bold">{reobject.square} м²</Typography>
+                      </Box>
+                    </Stack>
+
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Avatar sx={{ bgcolor: theme.palette.secondary.light }}>
+                        <MeetingRoomIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Комнат</Typography>
+                        <Typography fontWeight="bold">{reobject.rooms}</Typography>
+                      </Box>
+                    </Stack>
+
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Avatar sx={{ bgcolor: theme.palette.info.light }}>
+                        <HomeIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Этажей</Typography>
+                        <Typography fontWeight="bold">{reobject.floors}</Typography>
+                      </Box>
+                    </Stack>
+
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Avatar sx={{ bgcolor: theme.palette.success.light }}>
+                        <AttachMoneyIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">Цена</Typography>
+                        <Typography fontWeight="bold">{reobject.price.toLocaleString()} руб.</Typography>
+                      </Box>
+                    </Stack>
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
+              {reobject?.status?.id === 1 && ( 
                 <Button 
                   variant="contained" 
-                  startIcon={<EditIcon />}
-                  onClick={() => setEditMode(true)}
+                  color="secondary"
+                  onClick={() => setBookingModalOpen(true)}
+                  sx={{ 
+                    mt: 2,
+                    py: 1.5,
+                    fontSize: '1rem',
+                    fontWeight: 'bold'
+                  }}
+                  fullWidth
                 >
-                  Редактировать
+                  Забронировать
                 </Button>
+              )} 
+
+              {/* Модальное окно бронирования */}
+              {bookingModalOpen && (
+                <Paper elevation={3} sx={{ p: 3, mt: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Выберите даты бронирования</Typography>
+                  
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+                    <Stack spacing={2}>
+                      <DatePicker
+                        label="Дата заезда"
+                        value={checkInDate}
+                        onChange={(newValue) => setCheckInDate(newValue)}
+                        minDate={dayjs()}
+                        format="DD.MM.YYYY"
+                        sx={{ width: '100%' }}
+                      />
+                      {reobject.dealType.id === 1 && (
+                      <DatePicker
+                        label="Дата выезда (если известна)"
+                        value={checkOutDate}
+                        onChange={(newValue) => setCheckOutDate(newValue)}
+                        minDate={checkInDate || dayjs()}
+                        disabled={!checkInDate}
+                        format="DD.MM.YYYY"
+                        sx={{ width: '100%' }}
+                      />
+                    )}
+                      <Stack direction="row" spacing={2}>
+                        <Button 
+                          variant="contained"
+                          disabled={!reobject || !reobject.id}
+                          onClick={async () => {
+                            if (!reobject || !reobject.id) {
+                              alert('Объект не загружен');
+                              return;
+                            }
+                            if (!checkInDate) {
+                              alert('Пожалуйста, выберите дату заезда');
+                              return;
+                            }
+
+                            try {
+                              await rescontext.addReservation({ 
+                                objectId: reobject.id,
+                                startDate: checkInDate.toDate(),
+                                endDate: checkOutDate?.toDate(),
+                                userId: currentUser?.id!,
+                                resStatusId: 1
+                              });
+
+                              setBookingModalOpen(false);
+                              setCheckInDate(null);
+                              setCheckOutDate(null);
+                              alert('Бронирование успешно создано!');
+
+                              try {
+                                fetchREObject();
+                              } catch (fetchError) {
+                                console.error('Ошибка при получении объекта:', fetchError);
+                                alert('Не удалось обновить информацию об объекте');
+                              }
+                            } catch (error) {
+                              console.error('Ошибка при бронировании:', error);
+                              alert('Произошла ошибка при бронировании');
+                            }
+                          }}
+                          sx={{ flex: 1 }}
+                        >
+                          Подтвердить бронирование
+                        </Button>
+                        
+                        <Button 
+                          variant="outlined" 
+                          onClick={() => {
+                            setBookingModalOpen(false);
+                            setCheckInDate(null);
+                            setCheckOutDate(null);
+                          }}
+                          sx={{ flex: 1 }}
+                        >
+                          Отмена
+                        </Button>
+                      </Stack>
+                    </Stack>
+                  </LocalizationProvider>
+                </Paper>
               )}
-              <Button 
-                variant="outlined" 
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate(isAdmin ? "/objects" : "/objects-for-users")}
-              >
-                Назад к списку
-              </Button>
+
+              <Stack direction="row" spacing={2} mt={4}>
+                {isAdmin && (
+                  <Button 
+                    variant="contained" 
+                    startIcon={<EditIcon />}
+                    onClick={() => setEditMode(true)}
+                    sx={{ flex: 1 }}
+                  >
+                    Редактировать
+                  </Button>
+                )}
+                <Button 
+                  variant="outlined" 
+                  startIcon={<ArrowBackIcon />}
+                  onClick={() => navigate(isAdmin ? "/objects" : "/objects-for-users")}
+                  sx={{ flex: 1 }}
+                >
+                  Назад к списку
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
-        </Paper>
+          </CardContent>
+        </Card>
       ) : (
         <Paper elevation={3} sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.85)' }}>
           <Box component="form" onSubmit={handleSubmit}>

@@ -8,8 +8,8 @@ import "./index.css";
 
 const theme = createTheme({
   palette: {
-    primary: { main: "rgba(144, 66, 245, 0.7)" }, 
-    secondary: { main: "rgba(161, 17, 204, 0.5)" }, 
+    primary: { main: "rgba(140, 98, 175, 0.8)" }, 
+    secondary: { main: "rgba(63, 81, 181, 0.8)" }, 
   },
 });
 const root = ReactDOM.createRoot(

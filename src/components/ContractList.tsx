@@ -27,7 +27,7 @@ const ContractList: React.FC = () => {
 
   const handleSearch = async () => {
     const dateObj = dateFilter ? new Date(dateFilter) : undefined;
-    await context.fetchContracts(dateObj);
+    await context.fetchContracts(dateObj); // метод уже поддерживает фильтрацию
   };
 
   const handleReset = async () => {
