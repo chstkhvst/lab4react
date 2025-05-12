@@ -2,34 +2,52 @@ import React, { createContext, useState, useEffect, ReactNode } from "react"
 import ContractService from "../services/ContractService"
 import { Contract } from "../models/contract"
 
+/**
+ * Интерфейс контекста договоров
+ */
 interface ContractContextProps {
-  contracts: Contract[] // Массив всех договоров
-  addContract: (contract: Omit<Contract, "id" | "object" | "user" | "reservation">) => void // Добавление нового договора
-  getContractById: (id: number) => Promise<Contract> // Получение договора по ID
+  /** Массив всех договоров */
+  contracts: Contract[]
+  /** 
+   * Добавление нового договора 
+   * @param contract - данные договора без id и связанных объектов
+   */
+  addContract: (contract: Omit<Contract, "id" | "object" | "user" | "reservation">) => void
+  /**
+   * Получение договора по ID
+   * @param id - идентификатор договора
+   * @returns Промис с данными договора
+   */
+  getContractById: (id: number) => Promise<Contract>
+  /**
+   * Загрузка списка договоров
+   * @param signDate - необязательная дата подписания для фильтрации
+   */
   fetchContracts: (signDate?: Date) => void
 }
 
-// Создание контекста
+/**
+ * Контекст для работы с договорами
+ */
 export const ContractContext = createContext<ContractContextProps | undefined>(undefined)
 
-// Провайдер контекста для предоставления данных всему приложению
+/**
+ * Провайдер контекста договоров
+ * @param children - дочерние компоненты
+ */
 export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [contracts, setContracts] = useState<Contract[]>([]) // Локальное состояние для всех договоров
+  // Состояние для хранения списка договоров
+  const [contracts, setContracts] = useState<Contract[]>([])
 
+  // Загрузка договоров при монтировании компонента
   useEffect(() => {
     fetchContracts()
   }, [])
 
-  // Получение всех договоров
-  // const fetchContracts = async () => {
-  //   try {
-  //     const data = await ContractService.getContracts()
-
-  //     setContracts(data || [])
-  //   } catch (error) {
-  //     console.error("Ошибка загрузки договоров:", error)
-  //   }
-  // }
+  /**
+   * Загрузка договоров с возможностью фильтрации по дате подписания
+   * @param signDate - дата подписания для фильтрации
+   */
   const fetchContracts = async (signDate?: Date) => {
     try {
       const data = await ContractService.getContracts(signDate)
@@ -38,14 +56,22 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
       console.error("Ошибка загрузки договоров:", error)
     }
   }
-  // Добавление нового договора
+
+  /**
+   * Создание нового договора
+   * @param contract - данные нового договора
+   */
   const addContract = async (contract: Omit<Contract, "id" | "object" | "user" | "reservation">) => {
     await ContractService.createContract(contract)
     const updatedList = await ContractService.getContracts()
     setContracts(updatedList)
   }
 
-  // Получение договора по ID
+  /**
+   * Получение договора по идентификатору
+   * @param id - идентификатор договора
+   * @returns Данные договора
+   */
   const getContractById = async (id: number): Promise<Contract> => {
     return await ContractService.getContractById(id)
   }

@@ -20,6 +20,7 @@ import { ContractProvider } from "./context/ContractContext";
 import ContractList from "./components/ContractList";
 import ContractDetails from "./components/ContractDetails";
 import { CircularProgress } from "@mui/material";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 
 const ProtectedRoute: React.FC<{ children: React.ReactElement, adminOnly?: boolean }> = ({
   children,
@@ -42,6 +43,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactElement, adminOnly?: boole
 
 const App: React.FC = () => {
   return (
+    <ErrorBoundary>
     <ReservationProvider>
       <AuthProvider>
       <REObjectProvider>
@@ -49,14 +51,14 @@ const App: React.FC = () => {
           <Router>
             <Layout>
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/" element={<ErrorBoundary><Home /></ErrorBoundary>} />
+                <Route path="/login" element={<ErrorBoundary><LoginPage /></ErrorBoundary>} />
+                <Route path="/register" element={<ErrorBoundary><RegisterPage /></ErrorBoundary>} />
                 <Route
                   path="/objects-for-users"
                   element={
                     <ProtectedRoute>
-                      <ObjectsPageForUsers />
+                      <ErrorBoundary><ObjectsPageForUsers /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -64,7 +66,7 @@ const App: React.FC = () => {
                   path="/profile"
                   element={
                     <ProtectedRoute>
-                      <AccountDetails />
+                      <ErrorBoundary><AccountDetails /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -72,7 +74,7 @@ const App: React.FC = () => {
                   path="/all-users"
                   element={
                     <ProtectedRoute adminOnly>
-                      <UsersList />
+                      <ErrorBoundary><UsersList /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -80,7 +82,7 @@ const App: React.FC = () => {
                   path="/objects"
                   element={
                     <ProtectedRoute adminOnly>
-                      <ObjectsPage />
+                      <ErrorBoundary><ObjectsPage /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -88,7 +90,7 @@ const App: React.FC = () => {
                   path="/reservations"
                   element={
                     <ProtectedRoute adminOnly>
-                      <ReservationList />
+                      <ErrorBoundary><ReservationList /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -96,7 +98,7 @@ const App: React.FC = () => {
                   path="/contracts"
                   element={
                     <ProtectedRoute adminOnly>
-                      <ContractList/>
+                      <ErrorBoundary><ContractList/></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -105,7 +107,7 @@ const App: React.FC = () => {
                   path="/contracts/:id"
                   element={
                     <ProtectedRoute adminOnly>
-                      <ContractDetails />
+                      <ErrorBoundary><ContractDetails /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -113,7 +115,7 @@ const App: React.FC = () => {
                   path="/objects/add"
                   element={
                     <ProtectedRoute adminOnly>
-                      <REObjectForm />
+                      <ErrorBoundary><REObjectForm /></ErrorBoundary> 
                     </ProtectedRoute>
                   }
                 />
@@ -121,7 +123,7 @@ const App: React.FC = () => {
                   path="/objects/:id"
                   element={
                     <ProtectedRoute>
-                      <REObjectDetails />
+                      <ErrorBoundary><REObjectDetails /></ErrorBoundary>
                     </ProtectedRoute>
                   }
                 />
@@ -132,7 +134,7 @@ const App: React.FC = () => {
       </REObjectProvider>
     </AuthProvider>
     </ReservationProvider>
-
+    </ErrorBoundary>
   );
 };
 

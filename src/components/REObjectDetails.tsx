@@ -54,7 +54,7 @@ const REObjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const context = useContext(REObjectContext)!;
   const navigate = useNavigate();
-  const { isAdmin, currentUser } = useAuth();
+  const { isAdmin, currentUser, fetchCurrentUser } = useAuth();
   const rescontext = useContext(ReservationContext)!;
   const theme = useTheme();
 
@@ -433,6 +433,7 @@ const REObjectDetails: React.FC = () => {
                               setCheckInDate(null);
                               setCheckOutDate(null);
                               alert('Бронирование успешно создано!');
+                              fetchCurrentUser();
 
                               try {
                                 fetchREObject();

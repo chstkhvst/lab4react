@@ -86,6 +86,17 @@ class AuthService {
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey)
   }
+  /**
+   * Логаут пользователя из системы
+   */
+  async logout(): Promise<void> {
+    await fetch(`${this.baseUrl}/api/Account/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+    }).catch(() => {})
+  }
 
   /**
    * Удаляет токен из localStorage
@@ -134,7 +145,7 @@ class AuthService {
       console.log('Received data:', data);
       return data;
     } catch (error) {
-      console.error("Полная ошибка в getAllUsers:", error);
+      console.error("Ошибка в getAllUsers:", error);
       throw new Error("Не удалось загрузить пользователей. Проверьте консоль для деталей.");
     }
   }
@@ -192,6 +203,7 @@ class AuthService {
     return await response.json();
   }
 }
+
 
 /** Экспортированный экземпляр AuthService с пустым базовым URL */
 export const authService = new AuthService("")

@@ -20,6 +20,7 @@ import {
   alpha,
   styled
 } from "@mui/material";
+import { Pagination, PaginationItem } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -356,23 +357,36 @@ const REObjectList: React.FC<Props> = ({
       </Stack>
       
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <Stack direction="row" spacing={1}>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={page === currentPage ? "contained" : "outlined"}
-              onClick={() => onPageChange(page)}
-              sx={{
-                minWidth: 40,
-                height: 40,
-                borderRadius: '50%',
-                fontWeight: page === currentPage ? 700 : 500
-              }}
-            >
-              {page}
-            </Button>
-          ))}
-        </Stack>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={(_, page) => onPageChange(page)}
+          siblingCount={0} // Показывать только текущую страницу по бокам
+          boundaryCount={1} // Всегда показывать первую и последнюю страницы
+          renderItem={(item) => {
+            // Показываем многоточие если страниц > 5
+            const showEllipsis = totalPages > 5 && 
+                                (item.type === 'start-ellipsis' || item.type === 'end-ellipsis');
+            
+            return (
+              <PaginationItem
+                {...item}
+                sx={{
+                  minWidth: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  fontWeight: item.page === currentPage ? 700 : 500,
+                  '&.Mui-selected': {
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText
+                  }
+                }}
+                // Скрываем многоточие если страниц <= 5
+                style={{ display: !showEllipsis && item.type?.includes('ellipsis') ? 'none' : 'flex' }}
+              />
+            );
+          }}
+        />
       </Box>
     </Box>
   );

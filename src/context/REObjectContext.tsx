@@ -198,11 +198,7 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
       files, 
       imagesToDelete
     );
-    // const updatedList = await APIService.getREObjects();
-    // setREObjects(updatedList);
-    // return response;
     const updatedList = await APIService.getREObjectsPaginated(1);
-    // Убеждаемся, что устанавливаем именно массив items
     console.log(updatedList.items);
     setREObjects(updatedList.items);
     setCurrentPage(updatedList.currentPage);
@@ -220,30 +216,13 @@ export const REObjectProvider: React.FC<{ children: ReactNode }> = ({ children }
    * @returns {Promise<void>}
    * @throws {Error} При ошибке фильтрации
    */
-  // const fetchFilteredObjects = async (filters: {
-  //   objectTypeId?: number;
-  //   dealTypeId?: number;
-  //   statusId?: number;
-  // }): Promise<void> => {
-  //   try {
-  //     const filteredObjects = await APIService.getFilteredREObjects({
-  //       typeId: filters.objectTypeId,
-  //       dealTypeId: filters.dealTypeId,
-  //       statusId: filters.statusId
-  //     });
-  //     setREObjects(filteredObjects || []);
-  //   } catch (error) {
-  //     console.error("Ошибка фильтрации объектов:", error);
-  //     throw error;
-  //   }
-  // }
   const fetchFilteredObjects = async (
     filters: {
       objectTypeId?: number;
       dealTypeId?: number;
       statusId?: number;
     },
-    page: number = 1 // <--- добавлен параметр страницы
+    page: number = 1 
   ): Promise<void> => {
     try {
       const result = await APIService.getFilteredREObjects(

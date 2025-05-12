@@ -100,7 +100,7 @@ const REObjectForm: React.FC = () => {
       newErrors["price"] = "Введите реальную стоимость";
     }
     if (formData.price && num(formData.dealtypeid) == 2 && (num(formData.price) < 300000 || num(formData.price) > 30000000)) {
-      newErrors["price"] = "Введите реальную стоимость";
+      newErrors["price"] = "Стоимость слишком мала для продажи";
     }
   
     if (Object.keys(newErrors).length > 0) {
@@ -243,11 +243,19 @@ const REObjectForm: React.FC = () => {
             </Stack>
 
             <FormControl fullWidth required>
-              <InputLabel>Тип сделки</InputLabel>
+              <InputLabel htmlFor="deal-type-select">Тип сделки</InputLabel>
               <Select
+              role="listbox"
+                labelId="deal-type-label"
+                id="deal-type-select"
                 value={formData.dealtypeid}
                 label="Тип сделки"
                 onChange={handleSelectChange("dealtypeid")}
+                inputProps={{
+                'aria-labelledby': 'deal-type-label',
+                'data-testid': 'deal-type-select'
+                }}
+                MenuProps={{ disablePortal: true }}
               >
                 {context.dealTypes.map((dt) => (
                   <MenuItem key={dt.id} value={dt.id}>
@@ -258,11 +266,19 @@ const REObjectForm: React.FC = () => {
             </FormControl>
 
             <FormControl fullWidth required>
-              <InputLabel>Тип объекта</InputLabel>
+              <InputLabel htmlFor="object-type-select">Тип объекта</InputLabel>
               <Select
+                role="listbox"
+                labelId="object-type-label"
+                id="object-type-select"
                 value={formData.typeid}
                 label="Тип объекта"
                 onChange={handleSelectChange("typeid")}
+                    inputProps={{
+                  'aria-labelledby': 'object-type-label',
+                  'data-testid': 'object-type-select'
+                }}
+                MenuProps={{ disablePortal: true }}
               >
                 {context.objectTypes.map((ot) => (
                   <MenuItem key={ot.id} value={ot.id}>
@@ -273,11 +289,19 @@ const REObjectForm: React.FC = () => {
             </FormControl>
 
             <FormControl fullWidth required>
-              <InputLabel>Статус</InputLabel>
+              <InputLabel htmlFor="status-select">Статус</InputLabel>
               <Select
+              role="listbox"
+                labelId="status-label"
+                id="status-select"
                 value={formData.statusid}
                 label="Статус"
                 onChange={handleSelectChange("statusid")}
+                inputProps={{
+                  'aria-labelledby': 'status-label',
+                  'data-testid': 'status-select'
+                }}
+                MenuProps={{ disablePortal: true }}
               >
                 {context.statuses.map((s) => (
                   <MenuItem key={s.id} value={s.id}>
@@ -290,6 +314,7 @@ const REObjectForm: React.FC = () => {
             <FormControl fullWidth>
               <FormLabel>Добавить изображения</FormLabel>
               <input
+              data-testid="file-input"
                 type="file"
                 accept="image/*"
                 multiple

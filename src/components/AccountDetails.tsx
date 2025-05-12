@@ -29,23 +29,12 @@ const AccountDetails: React.FC = () => {
     phoneNumber: "",
   });
 
-  // useEffect(() => {
-  //   fetchCurrentUser();
-  //   if (currentUser) {
-  //     console.log(currentUser.reservations)
-  //     setFormState({
-  //       userName: currentUser.userName || "",
-  //       fullName: currentUser.fullName || "",
-  //       phoneNumber: currentUser.phoneNumber || "",
-  //     });
-  //   }
-  // }, [currentUser]);
   useEffect(() => {
     const loadUser = async () => {
       await fetchCurrentUser();
     };
     
-    if (!currentUser || !editMode) {
+    if (!currentUser) {
       loadUser();
     } else {
       console.log(currentUser.reservations);
@@ -173,6 +162,7 @@ const AccountDetails: React.FC = () => {
               variant="contained"
               startIcon={<EditIcon />}
               onClick={() => setEditMode(true)}
+              data-testid="edit-button"
             >
               Редактировать
             </Button>
@@ -182,7 +172,7 @@ const AccountDetails: React.FC = () => {
           </Stack>
         </Box>
       ) : (
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} data-testid="edit-form">
           <Stack spacing={2} divider={<Divider />}>
             <TextField
               label="Имя пользователя"

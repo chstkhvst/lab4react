@@ -38,7 +38,7 @@ interface SideMenuProps {
 // Стилизация Drawer с градиентом и тенью
 const CustomDrawer = styled(Drawer)(({ theme }) => ({
   "& .MuiDrawer-paper": {
-    background: `linear-gradient(135deg, ${theme.palette.primary.main} 70%, ${alpha(
+    background: `linear-gradient(135deg, ${theme.palette.primary.main} 30%, ${alpha(
       theme.palette.secondary.main,
       0.8
     )} 100%)`,

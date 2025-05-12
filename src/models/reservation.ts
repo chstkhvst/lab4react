@@ -6,7 +6,6 @@ export interface ResStatus {
     statusType: string;
 }
  
-
 export interface Reservation {
   id: number;
   objectId: number;

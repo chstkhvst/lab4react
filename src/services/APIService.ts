@@ -203,17 +203,6 @@ class APIService {
    * @returns {Promise<REObject[]>} Промис с массивом отфильтрованных объектов
    * @throws {Error} Если не удалось загрузить объекты
    */
-  // async getFilteredREObjects(filters: FilterParams): Promise<REObject[]> {
-  //   const params = new URLSearchParams();
-    
-  //   if (filters.typeId) params.append('typeId', filters.typeId.toString());
-  //   if (filters.dealTypeId) params.append('dealTypeId', filters.dealTypeId.toString());
-  //   if (filters.statusId) params.append('statusId', filters.statusId.toString());
-
-  //   const response = await fetch(`${this.baseUrl}/REObject/filter?${params.toString()}`);
-  //   if (!response.ok) throw new Error("Failed to fetch filtered objects");
-  //   return await response.json();
-  // }
   async getFilteredREObjects(
     filters: FilterParams,
     page: number = 1,
@@ -232,7 +221,9 @@ class APIService {
     if (!response.ok) throw new Error("Failed to fetch filtered objects");
     return await response.json();
   }
-
+  /**
+   * Пагинация для объектов
+   */
   async getREObjectsPaginated(
     page: number = 1,
     pageSize: number = 5

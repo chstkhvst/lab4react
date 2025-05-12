@@ -25,7 +25,6 @@ const Home: React.FC = () => {
   const [openContact, setOpenContact] = useState(false);
   const {user, isAdmin} = useAuth();
   const theme = useTheme();
-
   return (
     <Box sx={{
       backgroundImage: 'linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url(/nedviga.jpg)',
@@ -43,7 +42,7 @@ const Home: React.FC = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(255,255,255,0.85)',
+        backgroundColor: 'rgba(255,255,255,0.65)',
         zIndex: 0
       }
     }}>

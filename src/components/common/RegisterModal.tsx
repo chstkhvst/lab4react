@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/AuthService";
 import { RegisterRequest, RegisterResponse } from "../../models/auth.models";
+import { gunzip } from "zlib";
 
 const modalStyle = {
   position: "absolute" as const,
@@ -56,8 +57,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
     try {
       // Регистрация через authService.register
       const response: RegisterResponse = await authService.register(registerData);
-      // По успешной регистрации переходим на страницу входа (или сразу логиним)
-      onClose();
+      await authService.login({userName, password})
       navigate("/login");
     } catch (err) {
       setError("Ошибка при регистрации");
@@ -110,7 +110,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ open, onClose }) => {
             <Button
               type="submit"
               variant="contained"
-              disabled={isLoading}
+              disabled={isLoading || userName.length === 0 || !password.length || phoneNumber.length != 11 || !fullName.length}
               endIcon={isLoading ? <CircularProgress size={20} /> : null}
               fullWidth
             >
